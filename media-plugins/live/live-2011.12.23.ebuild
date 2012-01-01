@@ -30,7 +30,7 @@ src_prepare() {
 	pushd live-shared || die
 	# To build shared libraries with proper NEEDED entries, we need
 	# these libraries to link to eachother. This patch does this.
-	epatch "${FILESDIR}"/${P}-libdeps.patch
+	epatch "${FILESDIR}"/${PN}-2011.12.20-libdeps.patch
 	popd || die
 
 	mv live live-static || die
