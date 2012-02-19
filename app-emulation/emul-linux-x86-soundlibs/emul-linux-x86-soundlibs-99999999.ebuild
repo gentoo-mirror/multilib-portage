@@ -26,6 +26,5 @@ RDEPEND="!nodep? ( =app-emulation/emul-linux-x86-baselibs-${PV}
 		media-libs/libsndfile[multilib_abi_x86]
 		media-libs/libvorbis[multilib_abi_x86]
 		media-libs/portaudio[multilib_abi_x86]
-		media-sound/esound[multilib_abi_x86]
 		media-sound/jack-audio-connection-kit[multilib_abi_x86]
 		media-sound/pulseaudio[multilib_abi_x86] )"
