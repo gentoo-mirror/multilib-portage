@@ -1,3 +1,5 @@
+FEATURES="${FEATURES} force-multilib"
+
 NO_AUTO_FLAG="dev-util/boost-build net-libs/nativebiginteger dev-python/PyQt4"
 
 # following packages added to MULTILIB_BINARIES because of none-default -config binaries:
