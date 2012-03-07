@@ -1,3 +1,4 @@
+USE_EXPAND="${USE_EXPAND} multilib_abi"
 FEATURES="${FEATURES} force-multilib"
 
 NO_AUTO_FLAG="dev-util/boost-build net-libs/nativebiginteger dev-python/PyQt4"
