@@ -1,1 +1,3 @@
+# Nathan Phillip Brink <binki@gentoo.org> (12 Mar 2012)
+# The old (SLOT=0, 0.97) version of GRUB is 32-bit only
 sys-boot/grub:0 multilib_abi_x86
