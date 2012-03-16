@@ -25,4 +25,5 @@ src_install() {
 	insinto /usr/bin
 	ln -s ../../bin/abi-wrapper "${D}"usr/bin/abi-wrapper || die
 	newbin /bin/bash bash-abi-wrapper || die
+	newbin /bin/readlink readlink-abi-wrapper || die
 }

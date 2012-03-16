@@ -28,7 +28,7 @@ if [ -f "${0}-${abi}" ]; then
 	exec "${0}-${abi}" ${1+"$@"}
 else
 	if [ -L "${0}" ]; then
-		LINK_TARGET="$(readlink "${0}")"
+		LINK_TARGET="$(readlink-abi-wrapper "${0}")"
 		exec "${LINK_TARGET}" ${1+"$@"}
 	else
 		echo "${0}: abi-wrapper couldn't find an executable for current abi ${abi}" >&2
