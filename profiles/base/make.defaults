@@ -3,6 +3,7 @@ FEATURES="${FEATURES} force-multilib"
 
 NO_AUTO_FLAG="dev-util/boost-build net-libs/nativebiginteger dev-python/PyQt4"
 
+# MULTILIB_BINARIES kept for <=multilib-portage-2.2_alpha90-r1
 # following packages added to MULTILIB_BINARIES because of none-default -config binaries:
 # dev-libs/libIDL, net-libs/courier-authlib
 # following packages added to MULTILIB_BINARIES because their 32-bit binaries are used in pkg_postinst:
@@ -10,6 +11,9 @@ NO_AUTO_FLAG="dev-util/boost-build net-libs/nativebiginteger dev-python/PyQt4"
 MULTILIB_BINARIES="dev-lang/perl dev-lang/python dev-lang/ruby dev-libs/gobject-introspection dev-libs/libIDL \
 	net-libs/courier-authlib x11-libs/qt-core x11-libs/qt-gui media-libs/fontconfig www-servers/apache \
 	x11-libs/pango x11-libs/gtk+"
+
+RESTRICT_MULTILIB_BINARIES="sys-apps/abi-wrapper"
+
 USE="${USE} multilib"
 
 # set a default for $PKG_CONFIG to avoid a collision with crossdev-wrappers
