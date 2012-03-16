@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash-abi-wrapper
 
 # Please be careful to keep this file sh compatible
 
