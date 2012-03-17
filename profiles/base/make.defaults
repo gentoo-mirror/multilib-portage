@@ -12,7 +12,7 @@ MULTILIB_BINARIES="dev-lang/perl dev-lang/python dev-lang/ruby dev-libs/gobject-
 	net-libs/courier-authlib x11-libs/qt-core x11-libs/qt-gui media-libs/fontconfig www-servers/apache \
 	x11-libs/pango x11-libs/gtk+"
 
-RESTRICT_MULTILIB_BINARIES="sys-apps/abi-wrapper"
+RESTRICT_MULTILIB_BINARIES="sys-apps/abi-wrapper dev-vcs/git"
 
 USE="${USE} multilib"
 
