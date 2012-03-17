@@ -24,6 +24,24 @@ src_install() {
 	dobin abi-wrapper || die
 	insinto /usr/bin
 	ln -s ../../bin/abi-wrapper "${D}"usr/bin/abi-wrapper || die
-	newbin /bin/bash bash-abi-wrapper || die
-	newbin /bin/readlink readlink-abi-wrapper || die
+	if [[ -L "/bin/bash" ]] ; then
+		for i in ${abis} ; do
+			if [[ -x /bin/bash-${i} ]] ; then
+				newbin /bin/bash-${i} bash-abi-wrapper || die
+				break
+			fi
+		done
+	else
+		newbin /bin/bash bash-abi-wrapper || die
+	fi
+	if [[ -L "/bin/readlink" ]] ; then
+		for i in ${abis} ; do
+			if [[ -x /bin/readlink-${i} ]] ; then
+				newbin /bin/readlink-${i} readlink-abi-wrapper || die
+				break
+			fi
+		done
+	else
+		newbin /bin/readlink readlink-abi-wrapper || die
+	fi
 }
