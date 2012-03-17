@@ -15,7 +15,7 @@ IUSE=""
 RESTRICT="strip"
 
 src_unpack() {
-	local abis="${DEFAULT_ABI} ${MULTILIB_ABIS/${DEFAULT_ABI}}"
+	abis="${DEFAULT_ABI} ${MULTILIB_ABIS/${DEFAULT_ABI}}"
 	sed "s/@HARDCODED_ABIS@/${abis}/" "${FILESDIR}"/abi-wrapper > "${WORKDIR}"/abi-wrapper
 }
 
