@@ -14,7 +14,8 @@ MULTILIB_BINARIES="dev-lang/perl dev-lang/python dev-lang/ruby dev-libs/gobject-
 
 #git fails to run as wrapped binary
 #wrapped coreutils result in failing pkg_preinst phase for sys-libs/glibc
-RESTRICT_MULTILIB_BINARIES="dev-vcs/git sys-apps/abi-wrapper sys-apps/coreutils"
+#wrapped eselect-python (usr/bin/python-wrapper) prevents python from running
+RESTRICT_MULTILIB_BINARIES="app-admin/eselect-python dev-vcs/git sys-apps/abi-wrapper sys-apps/coreutils"
 
 USE="${USE} multilib"
 
