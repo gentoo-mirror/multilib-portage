@@ -115,6 +115,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	touch ChangeLog #Makefile requires this file to exist
 	if [ -n "${PATCHVER}" ] ; then
 		if [[ -L $S/bin/ebuild-helpers/portageq ]] ; then
 			rm "$S/bin/ebuild-helpers/portageq" \
@@ -235,6 +236,7 @@ src_install() {
 		doman -i18n=pl "${S_PL}"/man/pl/*.[0-9] || die
 		doman -i18n=pl_PL.UTF-8 "${S_PL}"/man/pl_PL.UTF-8/*.[0-9] || die
 	fi
+	rm "${D}"usr/share/doc/${PF}/ChangeLog || die
 }
 
 pkg_preinst() {
