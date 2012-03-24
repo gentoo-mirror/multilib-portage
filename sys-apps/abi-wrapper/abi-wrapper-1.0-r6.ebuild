@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI=3
+
 DESCRIPTION="Wraps binarys that behave abi dependand"
 HOMEPAGE="www.gentoo.org"
 SRC_URI=""
@@ -23,25 +25,25 @@ src_install() {
 	into /
 	dobin abi-wrapper || die
 	insinto /usr/bin
-	ln -s ../../bin/abi-wrapper "${D}"usr/bin/abi-wrapper || die
-	if [[ -L "/bin/bash" ]] ; then
+	ln -s ../../bin/abi-wrapper "${ED}"usr/bin/abi-wrapper || die
+	if [[ -L ${EROOT}/bin/bash ]] ; then
 		for i in ${abis} ; do
-			if [[ -x /bin/bash-${i} ]] ; then
-				newbin /bin/bash-${i} bash-abi-wrapper || die
+			if [[ -x ${EROOT}/bin/bash-${i} ]] ; then
+				newbin "${EROOT}"/bin/bash-${i} bash-abi-wrapper || die
 				break
 			fi
 		done
 	else
-		newbin /bin/bash bash-abi-wrapper || die
+		newbin "${EROOT}"/bin/bash bash-abi-wrapper || die
 	fi
-	if [[ -L "/bin/readlink" ]] ; then
+	if [[ -L ${EROOT}/bin/readlink ]] ; then
 		for i in ${abis} ; do
-			if [[ -x /bin/readlink-${i} ]] ; then
-				newbin /bin/readlink-${i} readlink-abi-wrapper || die
+			if [[ -x ${EROOT}/bin/readlink-${i} ]] ; then
+				newbin "${EROOT}"/bin/readlink-${i} readlink-abi-wrapper || die
 				break
 			fi
 		done
 	else
-		newbin /bin/readlink readlink-abi-wrapper || die
+		newbin "${EROOT}"/bin/readlink readlink-abi-wrapper || die
 	fi
 }
