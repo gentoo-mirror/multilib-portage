@@ -7,3 +7,4 @@ sys-boot/grub:0 multilib_abi_x86
 # need to handle building themselves as multilib.
 sys-devel/gcc multilib
 sys-libs/glibc multilib
+sys-libs/libstdc++-v3 multilib
