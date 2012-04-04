@@ -5,6 +5,7 @@ sys-boot/grub:0 multilib_abi_x86
 # Nathan Phillip Brink <binki@gentoo.org> (24 Mar 2012)
 # Enable the internal multilib support for these packages, as they
 # need to handle building themselves as multilib.
+app-emulation/wine multilib
 sys-devel/gcc multilib
 sys-libs/glibc multilib
 sys-libs/libstdc++-v3 multilib

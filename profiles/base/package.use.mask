@@ -9,4 +9,3 @@ sys-boot/grub:0 multilib_abi_amd64 multilib_abi_x32
 sys-devel/gcc -multilib
 sys-libs/glibc -multilib
 sys-libs/libstdc++-v3 -multilib
-www-plugins/nspluginwrapper -multilib
