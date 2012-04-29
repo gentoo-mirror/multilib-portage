@@ -28,7 +28,7 @@ RDEPEND="!nodep? ( kerberos? ( app-crypt/mit-krb5[multilib_abi_x86] )
 		dev-libs/libxslt[multilib_abi_x86]
 		dev-libs/openssl[multilib_abi_x86]
 		media-libs/giflib[multilib_abi_x86]
-		media-libs/jpeg[multilib_abi_x86]
+		virtual/jpeg[multilib_abi_x86]
 		media-libs/lcms[multilib_abi_x86]
 		media-libs/libart_lgpl[multilib_abi_x86]
 		media-libs/libmng[multilib_abi_x86]
