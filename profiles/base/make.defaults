@@ -28,9 +28,11 @@ MULTILIB_BINARIES="dev-lang/perl dev-lang/python dev-lang/ruby dev-libs/gobject-
 #from pulseaudio: [pulseaudio-amd6] main.c: /proc/self/exe does not point to /bin/abi-wrapper, cannot self execute. Are you playing games?
 #iproute2 does check for $0
 #rpm2tar seems to create different archives, when being wrapped
+#automake-wrapper fails to find automake versions, when being wrapped
 RESTRICT_MULTILIB_BINARIES="app-admin/eselect-python app-arch/rpm2targz app-crypt/gnupg app-portage/eix app-portage/portage-utils \
 	dev-util/cmake dev-vcs/git media-sound/pulseaudio net-analyzer/wireshark sys-apps/abi-wrapper \
-	sys-apps/coreutils sys-apps/iproute2 sys-apps/kmod sys-apps/openrc sys-apps/util-linux sys-devel/gettext sys-fs/udev"
+	sys-apps/coreutils sys-apps/iproute2 sys-apps/kmod sys-apps/openrc sys-apps/util-linux sys-devel/automake-wrapper \
+	sys-devel/gettext sys-fs/udev"
 
 USE="${USE} multilib"
 
