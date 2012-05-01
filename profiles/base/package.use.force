@@ -10,3 +10,19 @@ sys-devel/gcc multilib
 sys-libs/glibc multilib
 sys-libs/libstdc++-v3 multilib
 www-plugins/nspluginwrapper multilib
+
+#those packages have been in MULTILIB_BINARIES, so they now need
+#the abiwrapper USE flag force-enabled
+dev-lang/perl abiwrapper
+dev-lang/python abiwrapper
+dev-lang/ruby abiwrapper
+dev-libs/gobject-introspection abiwrapper
+dev-libs/libIDL abiwrapper
+net-libs/courier-authlib abiwrapper
+x11-libs/qt-core abiwrapper
+x11-libs/qt-gui abiwrapper
+media-libs/fontconfig abiwrapper
+www-servers/apache abiwrapper
+x11-libs/pango abiwrapper
+x11-libs/gtk+ abiwrapper
+
