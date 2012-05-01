@@ -11,3 +11,25 @@ sys-devel/gcc -multilib
 sys-libs/glibc -multilib
 sys-libs/libstdc++-v3 -multilib
 www-plugins/nspluginwrapper -multilib
+
+#those packages have been in RESTRICT_MULTILIB_BINARIES, so
+#they now need the abiwrapper USE flag masked
+app-admin/eselect-python abiwrapper
+app-arch/rpm2targz abiwrapper
+app-crypt/gnupg abiwrapper
+app-portage/eix abiwrapper
+app-portage/portage-utils abiwrapper
+dev-util/cmake abiwrapper
+dev-vcs/git abiwrapper
+media-sound/pulseaudio abiwrapper
+net-analyzer/wireshark abiwrapper
+sys-apps/abi-wrapper abiwrapper
+sys-apps/coreutils abiwrapper
+sys-apps/iproute2 abiwrapper
+sys-apps/kmod abiwrapper
+sys-apps/openrc abiwrapper
+sys-apps/sysvinit abiwrapper
+sys-apps/util-linux abiwrapper
+sys-devel/automake-wrapper abiwrapper
+sys-devel/gettext abiwrapper
+sys-fs/udev abiwrapper
