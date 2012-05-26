@@ -11,6 +11,7 @@ sys-devel/gcc -multilib
 sys-libs/glibc -multilib
 sys-libs/libstdc++-v3 -multilib
 www-plugins/nspluginwrapper -multilib
+x11-drivers/nvidia-drivers -multilib
 
 #those packages have been in RESTRICT_MULTILIB_BINARIES, so
 #they now need the abiwrapper USE flag masked
