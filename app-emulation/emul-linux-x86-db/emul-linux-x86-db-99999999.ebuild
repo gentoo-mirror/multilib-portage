@@ -12,7 +12,7 @@ KEYWORDS="-* ~amd64"
 SLOT="0"
 IUSE="-nodep"
 
-RDEPEND="!nodep? ( app-emulation/emul-linux-x86-baselibs )
+RDEPEND="!nodep? ( app-emulation/emul-linux-x86-baselibs
 	dev-db/myodbc[multilib_abi_x86]
 	dev-db/mysql[multilib_abi_x86]
-	dev-db/unixODBC[multilib_abi_x86]"
+	dev-db/unixODBC[multilib_abi_x86] )"
