@@ -19,6 +19,7 @@ dev-lang/python abiwrapper
 dev-lang/ruby abiwrapper
 dev-libs/gobject-introspection abiwrapper
 dev-libs/libIDL abiwrapper
+dev-scheme/guile abiwrapper
 net-libs/courier-authlib abiwrapper
 x11-libs/qt-core abiwrapper
 x11-libs/qt-gui abiwrapper
