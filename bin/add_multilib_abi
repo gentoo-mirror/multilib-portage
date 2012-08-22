@@ -8,8 +8,8 @@ MULTILIB_ABIS=$(portageq envvar MULTILIB_ABIS)
 if [[ -z ${DEFAULT_ABI} || -z ${MULTILIB_ABIS} ]]; then
 	echo >&2
 	echo "I cannot get proper DEFAULT_ABI and MULTILIB_ABIS values. Have you installed" >&2
-	echo "portage-multilib correctly and setup the profile as described in" >&2
-	echo "$(dirname "${0}")/../portage-multilib-instructions?" >&2
+	echo "portage-multilib correctly and configured /etc/make.profile as described in" >&2
+	echo "$(dirname "${0}")/../doc/portage-multilib-instructions?" >&2
 	exit 1
 fi
 echo " done" >&2
