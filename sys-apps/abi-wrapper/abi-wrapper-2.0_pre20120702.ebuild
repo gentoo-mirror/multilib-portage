@@ -7,8 +7,8 @@ EAPI=4
 inherit autotools-utils multilib
 
 DESCRIPTION="Wraps binaries which have implementations for different ABIs"
-HOMEPAGE="http://gentoo.org/~binki/abi-wrapper.xhtml"
-SRC_URI="ftp://mirror.ohnopub.net/mirror/${PN}/${P}.tar.bz2 https://bitbucket.org/gentoo/abi-wrapper"
+HOMEPAGE="http://gentoo.org/~binki/abi-wrapper.xhtml https://bitbucket.org/gentoo/abi-wrapper"
+SRC_URI="ftp://mirror.ohnopub.net/mirror/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
