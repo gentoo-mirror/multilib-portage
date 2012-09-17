@@ -117,6 +117,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+       touch ChangeLog #Makefile requires this file to exist
 	if [ -n "${PATCHVER}" ] ; then
 		if [[ -L $S/bin/ebuild-helpers/portageq ]] ; then
 			rm "$S/bin/ebuild-helpers/portageq" \
