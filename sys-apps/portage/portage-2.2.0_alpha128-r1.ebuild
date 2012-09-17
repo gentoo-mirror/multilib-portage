@@ -1,34 +1,37 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/portage/portage-2.2.0_alpha91.ebuild,v 1.1 2012/03/18 00:16:11 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/portage/portage-2.2.0_alpha128.ebuild,v 1.1 2012/09/14 02:54:07 zmedico Exp $
 
 # Require EAPI 2 since we now require at least python-2.6 (for python 3
 # syntax support) which also requires EAPI 2.
 EAPI=3
-inherit eutils git-2 multilib python
+inherit eutils git-2 python
 
 EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="b156a9884fd820a39841ee183ba696e7b174d5c7"
+EGIT_COMMIT="ba7e40ba4ec4974a5469d707853dd41fcad13a55"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="http://www.gentoo.org/proj/en/portage/index.xml"
 LICENSE="GPL-2"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~sparc-fbsd ~x86 ~x86-fbsd"
 SLOT="0"
-IUSE="build doc epydoc +ipc linguas_pl pypy1_8 python2 python3 selinux xattr"
+IUSE="build doc epydoc +ipc linguas_pl pypy1_9 python2 python3 selinux xattr"
 
 # Import of the io module in python-2.6 raises ImportError for the
 # thread module if threading is disabled.
-python_dep="python3? ( =dev-lang/python-3* )
-	!pypy1_8? ( !python2? ( !python3? (
-		|| ( >=dev-lang/python-2.7 dev-lang/python:2.6[threads] )
+python_dep_ssl="python3? ( =dev-lang/python-3*[ssl] )
+	!pypy1_9? ( !python2? ( !python3? (
+		|| ( >=dev-lang/python-2.7[ssl] dev-lang/python:2.6[threads,ssl] )
 	) ) )
-	pypy1_8? ( !python2? ( !python3? ( dev-python/pypy:1.8[bzip2] ) ) )
-	python2? ( !python3? ( || ( dev-lang/python:2.7 dev-lang/python:2.6[threads] ) ) )"
+	pypy1_9? ( !python2? ( !python3? ( dev-python/pypy:1.9[bzip2,ssl] ) ) )
+	python2? ( !python3? ( || ( dev-lang/python:2.7[ssl] dev-lang/python:2.6[ssl,threads] ) ) )"
+python_dep="${python_dep_ssl//\[ssl\]}"
+python_dep="${python_dep//,ssl}"
+python_dep="${python_dep//ssl,}"
 
 # The pysqlite blocker is for bug #282760.
 DEPEND="${python_dep}
-	!build? ( >=sys-apps/sed-4.0.5 )
+	>=sys-apps/sed-4.0.5 sys-devel/patch
 	doc? ( app-text/xmlto ~app-text/docbook-xml-dtd-4.4 )
 	epydoc? ( >=dev-python/epydoc-2.0 !<=dev-python/pysqlite-2.4.1 )
 	>=sys-apps/abi-wrapper-1.0-r6"
@@ -37,10 +40,13 @@ DEPEND="${python_dep}
 # quite slow, so it's not considered in the dependencies as an alternative to
 # to python-3.3 / pyxattr. Also, xattr support is only tested with Linux, so
 # for now, don't pull in xattr deps for other kernels.
+# For whirlpool hash, require python[ssl] or python-mhash (bug #425046).
 RDEPEND="${python_dep}
 	!build? ( >=sys-apps/sed-4.0.5
 		>=app-shells/bash-3.2_p17
-		>=app-admin/eselect-1.2 )
+		>=app-admin/eselect-1.2
+		|| ( ${python_dep_ssl} dev-python/python-mhash )
+	)
 	elibc_FreeBSD? ( sys-freebsd/freebsd-bin )
 	elibc_glibc? ( >=sys-apps/sandbox-2.2 )
 	elibc_uclibc? ( >=sys-apps/sandbox-2.2 )
@@ -68,23 +74,19 @@ current_python_has_xattr() {
 }
 
 pkg_setup() {
-	# Bug #359731 - Die early if get_libdir fails.
-	[[ -z $(get_libdir) ]] && \
-		die "get_libdir returned an empty string"
-
 	if use python2 && use python3 ; then
 		ewarn "Both python2 and python3 USE flags are enabled, but only one"
 		ewarn "can be in the shebangs. Using python3."
 	fi
-	if use pypy1_8 && use python3 ; then
-		ewarn "Both pypy1_8 and python3 USE flags are enabled, but only one"
+	if use pypy1_9 && use python3 ; then
+		ewarn "Both pypy1_9 and python3 USE flags are enabled, but only one"
 		ewarn "can be in the shebangs. Using python3."
 	fi
-	if use pypy1_8 && use python2 ; then
-		ewarn "Both pypy1_8 and python2 USE flags are enabled, but only one"
+	if use pypy1_9 && use python2 ; then
+		ewarn "Both pypy1_9 and python2 USE flags are enabled, but only one"
 		ewarn "can be in the shebangs. Using python2"
 	fi
-	if ! use pypy1_8 && ! use python2 && ! use python3 && \
+	if ! use pypy1_9 && ! use python2 && ! use python3 && \
 		! compatible_python_is_selected ; then
 		ewarn "Attempting to select a compatible default python interpreter"
 		local x success=0
@@ -109,13 +111,12 @@ pkg_setup() {
 		python_set_active_version 3
 	elif use python2; then
 		python_set_active_version 2
-	elif use pypy1_8; then
-		python_set_active_version 2.7-pypy-1.8
+	elif use pypy1_9; then
+		python_set_active_version 2.7-pypy-1.9
 	fi
 }
 
 src_prepare() {
-	touch ChangeLog #Makefile requires this file to exist
 	if [ -n "${PATCHVER}" ] ; then
 		if [[ -L $S/bin/ebuild-helpers/portageq ]] ; then
 			rm "$S/bin/ebuild-helpers/portageq" \
@@ -150,9 +151,9 @@ src_prepare() {
 	elif use python2; then
 		einfo "Converting shebangs for python2..."
 		python_convert_shebangs -r 2 .
-	elif use pypy1_8; then
-		einfo "Converting shebangs for pypy-c1.8..."
-		python_convert_shebangs -r 2.7-pypy-1.8 .
+	elif use pypy1_9; then
+		einfo "Converting shebangs for pypy-c1.9..."
+		python_convert_shebangs -r 2.7-pypy-1.9 .
 	fi
 
 	if [[ -n ${EPREFIX} ]] ; then
@@ -197,12 +198,6 @@ src_prepare() {
 		eerror "Please notify the arch maintainer about this issue. Using generic."
 		eerror ""
 	fi
-
-	# BSD and OSX need a sed wrapper so that find/xargs work properly
-	if use userland_GNU; then
-		rm -f "${S}"/bin/ebuild-helpers/sed || \
-			die "Failed to remove sed wrapper"
-	fi
 }
 
 src_compile() {
@@ -226,17 +221,22 @@ src_install() {
 	emake DESTDIR="${D}" \
 		sysconfdir="${EPREFIX}/etc" \
 		prefix="${EPREFIX}/usr" \
-		libdir="${EPREFIX}/usr/$(get_libdir)" \
 		install || die
 
 	# Use dodoc for compression, since the Makefile doesn't do that.
-	dodoc "${S}"/{ChangeLog,NEWS,RELEASE-NOTES}
+	dodoc "${S}"/{ChangeLog,NEWS,RELEASE-NOTES} || die
 
 	if use linguas_pl; then
 		doman -i18n=pl "${S_PL}"/man/pl/*.[0-9] || die
 		doman -i18n=pl_PL.UTF-8 "${S_PL}"/man/pl_PL.UTF-8/*.[0-9] || die
 	fi
-	rm "${D}"usr/share/doc/${PF}/ChangeLog || die
+
+	# Set PYTHONPATH for portage API consumers. This way we don't have
+	# to rely on patched python having the correct path, since it has
+	# been known to incorrectly add /usr/libx32/portage/pym to sys.path.
+	echo "PYTHONPATH=${EPREFIX}/usr/lib/portage/pym" > \
+		"${T}/05portage" || die
+	doenvd "${T}/05portage" || die
 }
 
 pkg_preinst() {
@@ -263,12 +263,6 @@ pkg_preinst() {
 		ewarn "to enable RMD160 hash support."
 		ewarn "See bug #198398 for more information."
 	fi
-	if [ -f "${EROOT}/etc/make.globals" ]; then
-		rm "${EROOT}/etc/make.globals"
-	fi
-
-	has_version "<${CATEGORY}/${PN}-2.2_alpha" \
-		&& MINOR_UPGRADE=true || MINOR_UPGRADE=false
 
 	has_version "<=${CATEGORY}/${PN}-2.2_pre5" \
 		&& WORLD_MIGRATION_UPGRADE=true || WORLD_MIGRATION_UPGRADE=false
@@ -279,17 +273,15 @@ pkg_preinst() {
 		! ( [ -e "${EROOT}"var/lib/portage/preserved_libs_registry ] && \
 		has_version ">=${CATEGORY}/${PN}-2.1.6_rc" ) \
 		&& NEEDED_REBUILD_UPGRADE=true || NEEDED_REBUILD_UPGRADE=false
-
-	[[ -n $PORTDIR_OVERLAY ]] && has_version "<${CATEGORY}/${PN}-2.1.6.12" \
-		&& REPO_LAYOUT_CONF_WARN=true || REPO_LAYOUT_CONF_WARN=false
 }
 
 pkg_postinst() {
 	# Compile all source files recursively. Any orphans
 	# will be identified and removed in postrm.
-	python_mod_optimize /usr/$(get_libdir)/portage/pym
+	python_mod_optimize /usr/lib/portage/pym
 
-	if $WORLD_MIGRATION_UPGRADE ; then
+	if $WORLD_MIGRATION_UPGRADE && \
+		grep -q "^@" "${EROOT}/var/lib/portage/world"; then
 		einfo "moving set references from the worldfile into world_sets"
 		cd "${EROOT}/var/lib/portage/"
 		grep "^@" world >> world_sets
@@ -315,36 +307,14 @@ pkg_postinst() {
 		done
 	fi
 
-	if $REPO_LAYOUT_CONF_WARN ; then
-		ewarn
-		echo "If you want overlay eclasses to override eclasses from" \
-			"other repos then see the portage(5) man page" \
-			"for information about the new layout.conf and repos.conf" \
-			"configuration files." \
-			| fmt -w 75 | while read -r ; do ewarn "$REPLY" ; done
-		ewarn
-	fi
-
-	einfo
-	einfo "For help with using portage please consult the Gentoo Handbook"
-	einfo "at http://www.gentoo.org/doc/en/handbook/handbook-x86.xml?part=3"
 	einfo
 	elog "For setup instructions after switching to portage-multilib"
 	elog "read doc/portage-multilib-instructions inside the multilib overlay"
 	einfo
 	elog "The bin/ dir of the overlay has some scripts to switch from lib32"
 	elog "to MULTILIB_ABI or to add the default MULTILIB_ABI flags"
-
-
-	if $MINOR_UPGRADE ; then
-		elog "If you're upgrading from a pre-2.2 version of portage you might"
-		elog "want to remerge world (emerge -e world) to take full advantage"
-		elog "of some of the new features in 2.2."
-		elog "This is not required however for portage to function properly."
-		elog
-	fi
 }
 
 pkg_postrm() {
-	python_mod_cleanup /usr/$(get_libdir)/portage/pym
+	python_mod_cleanup /usr/lib/portage/pym
 }
