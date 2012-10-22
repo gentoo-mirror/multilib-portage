@@ -189,6 +189,9 @@ src_prepare() {
 			|| die "failed to append to make.globals"
 	fi
 
+	echo -e '\nFEATURES="${FEATURES} preserve-libs"' >> cnf/make.globals \
+		|| die "failed to append to make.globals"
+
 	cd "${S}/cnf" || die
 	if [ -f "make.conf.${ARCH}".diff ]; then
 		patch make.conf "make.conf.${ARCH}".diff || \
@@ -235,7 +238,7 @@ src_install() {
 	# Set PYTHONPATH for portage API consumers. This way we don't have
 	# to rely on patched python having the correct path, since it has
 	# been known to incorrectly add /usr/libx32/portage/pym to sys.path.
-	echo "PYTHONPATH=${EPREFIX}/usr/lib/portage/pym" > \
+	echo "PYTHONPATH=\"${EPREFIX}/usr/lib/portage/pym\"" > \
 		"${T}/05portage" || die
 	doenvd "${T}/05portage" || die
 }
