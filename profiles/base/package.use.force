@@ -28,3 +28,7 @@ www-servers/apache abiwrapper
 x11-libs/pango abiwrapper
 x11-libs/gtk+ abiwrapper
 
+# Nathan Phillip Brink <binki@gentoo.org> (17 Nov 2012)
+# mysql_config contains architecture-specific data and needs
+# abiwrapper.
+dev-db/mysql abiwrapper
