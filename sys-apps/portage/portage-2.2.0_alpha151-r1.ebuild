@@ -9,21 +9,21 @@ inherit eutils git-2 python
 
 EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="5728c6f5e9099f8b8076d0b8315be059a1244bda"
+EGIT_COMMIT="69dc95fb27bbe290ef60e5d826ec868d6baee4b5"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="http://www.gentoo.org/proj/en/portage/index.xml"
 LICENSE="GPL-2"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~sparc-fbsd ~x86 ~x86-fbsd"
 SLOT="0"
-IUSE="build doc epydoc +ipc linguas_pl pypy1_9 python2 python3 selinux xattr"
+IUSE="build doc epydoc +ipc linguas_pl pypy2_0 python2 python3 selinux xattr"
 
 # Import of the io module in python-2.6 raises ImportError for the
 # thread module if threading is disabled.
 python_dep_ssl="python3? ( =dev-lang/python-3*[ssl] )
-	!pypy1_9? ( !python2? ( !python3? (
+	!pypy2_0? ( !python2? ( !python3? (
 		|| ( >=dev-lang/python-2.7[ssl] dev-lang/python:2.6[threads,ssl] )
 	) ) )
-	pypy1_9? ( !python2? ( !python3? ( dev-python/pypy:1.9[bzip2,ssl] ) ) )
+	pypy2_0? ( !python2? ( !python3? ( dev-python/pypy:2.0[bzip2,ssl] ) ) )
 	python2? ( !python3? ( || ( dev-lang/python:2.7[ssl] dev-lang/python:2.6[ssl,threads] ) ) )"
 python_dep="${python_dep_ssl//\[ssl\]}"
 python_dep="${python_dep//,ssl}"
@@ -41,9 +41,10 @@ DEPEND="${python_dep}
 # to python-3.3 / pyxattr. Also, xattr support is only tested with Linux, so
 # for now, don't pull in xattr deps for other kernels.
 # For whirlpool hash, require python[ssl] or python-mhash (bug #425046).
+# For compgen, require bash[readline] (bug #445576).
 RDEPEND="${python_dep}
 	!build? ( >=sys-apps/sed-4.0.5
-		>=app-shells/bash-3.2_p17
+		|| ( >=app-shells/bash-4.2_p37[readline] ( <app-shells/bash-4.2_p37 >=app-shells/bash-3.2_p17 ) )
 		>=app-admin/eselect-1.2
 		|| ( ${python_dep_ssl} dev-python/python-mhash )
 	)
@@ -62,7 +63,7 @@ PDEPEND="
 		userland_GNU? ( >=sys-apps/coreutils-6.4 )
 	)"
 # coreutils-6.4 rdep is for date format in emerge-webrsync #164532
-# NOTE: FEATURES=install-sources requires debugedit and rsync
+# NOTE: FEATURES=installsources requires debugedit and rsync
 
 compatible_python_is_selected() {
 	[[ $("${EPREFIX}/usr/bin/python" -c 'import sys ; sys.stdout.write(sys.hexversion >= 0x2060000 and "good" or "bad")') = good ]]
@@ -78,15 +79,15 @@ pkg_setup() {
 		ewarn "Both python2 and python3 USE flags are enabled, but only one"
 		ewarn "can be in the shebangs. Using python3."
 	fi
-	if use pypy1_9 && use python3 ; then
-		ewarn "Both pypy1_9 and python3 USE flags are enabled, but only one"
+	if use pypy2_0 && use python3 ; then
+		ewarn "Both pypy2_0 and python3 USE flags are enabled, but only one"
 		ewarn "can be in the shebangs. Using python3."
 	fi
-	if use pypy1_9 && use python2 ; then
-		ewarn "Both pypy1_9 and python2 USE flags are enabled, but only one"
+	if use pypy2_0 && use python2 ; then
+		ewarn "Both pypy2_0 and python2 USE flags are enabled, but only one"
 		ewarn "can be in the shebangs. Using python2"
 	fi
-	if ! use pypy1_9 && ! use python2 && ! use python3 && \
+	if ! use pypy2_0 && ! use python2 && ! use python3 && \
 		! compatible_python_is_selected ; then
 		ewarn "Attempting to select a compatible default python interpreter"
 		local x success=0
@@ -111,8 +112,8 @@ pkg_setup() {
 		python_set_active_version 3
 	elif use python2; then
 		python_set_active_version 2
-	elif use pypy1_9; then
-		python_set_active_version 2.7-pypy-1.9
+	elif use pypy2_0; then
+		python_set_active_version 2.7-pypy-2.0
 	fi
 }
 
@@ -152,9 +153,9 @@ src_prepare() {
 	elif use python2; then
 		einfo "Converting shebangs for python2..."
 		python_convert_shebangs -r 2 .
-	elif use pypy1_9; then
-		einfo "Converting shebangs for pypy-c1.9..."
-		python_convert_shebangs -r 2.7-pypy-1.9 .
+	elif use pypy2_0; then
+		einfo "Converting shebangs for pypy-c2.0..."
+		python_convert_shebangs -r 2.7-pypy-2.0 .
 	fi
 
 	if [[ -n ${EPREFIX} ]] ; then
