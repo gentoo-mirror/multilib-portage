@@ -3,7 +3,3 @@
 # is natively implemented, both major changes which might cause
 # problems.
 >=sys-apps/abi-wrapper-2.0_pre20120701
-
-#Mask new revisions directly using the new multilib
-#eclasses of mgorny until we have a better way to disable them
-=x11-libs/libvdpau-0.5-r1
