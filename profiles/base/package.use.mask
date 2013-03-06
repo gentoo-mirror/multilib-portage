@@ -34,3 +34,7 @@ sys-apps/util-linux abiwrapper
 sys-devel/automake-wrapper abiwrapper
 sys-devel/gettext abiwrapper
 sys-fs/udev abiwrapper
+
+# unmask some packages with eclass usage
+app-emulation/wine -abi_x86_32
+app-emulation/wine -abi_x86_64
