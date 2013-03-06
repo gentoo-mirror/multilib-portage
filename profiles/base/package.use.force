@@ -32,3 +32,15 @@ x11-libs/gtk+ abiwrapper
 # mysql_config contains architecture-specific data and needs
 # abiwrapper.
 dev-db/mysql abiwrapper
+
+# add useless development USE flag to the emul packages to
+# satisfy depending packages like wine
+app-emulation/emul-linux/-x86-baselibs development
+app-emulation/emul-linux/-x86-db development
+app-emulation/emul-linux/-x86-gtklibs development
+app-emulation/emul-linux/-x86-medialibs development
+app-emulation/emul-linux/-x86-opengl development
+app-emulation/emul-linux/-x86-qtlibs development
+app-emulation/emul-linux/-x86-sdl development
+app-emulation/emul-linux/-x86-soundlibs development
+app-emulation/emul-linux/-x86-xlibs development
