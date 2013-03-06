@@ -10,7 +10,7 @@ LICENSE="GPL-2"
 
 KEYWORDS="-* ~amd64"
 SLOT="0"
-IUSE="opengl -nodep"
+IUSE="+development nodep opengl"
 
 DEPEND="!nodep? ( opengl? ( app-admin/eselect-opengl ) )"
 

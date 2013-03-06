@@ -10,7 +10,7 @@ LICENSE="GPL-2"
 
 KEYWORDS="-* ~amd64"
 SLOT="0"
-IUSE="+dbus kde -nodep opengl +qt3 +qt4 +svg +sql +webkit"
+IUSE="+development +dbus kde nodep opengl +qt3 +qt4 +svg +sql +webkit"
 
 DEPEND="!nodep? ( opengl? ( app-admin/eselect-opengl ) )"
 

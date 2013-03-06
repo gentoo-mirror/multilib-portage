@@ -10,7 +10,7 @@ LICENSE="GPL-2"
 
 KEYWORDS="-* ~amd64"
 SLOT="0"
-IUSE="-nodep"
+IUSE="+development nodep"
 
 RDEPEND="!nodep? ( app-emulation/emul-linux-x86-baselibs
 	dev-db/myodbc[multilib_abi_x86]

@@ -10,7 +10,7 @@ LICENSE="GPL-2"
 
 KEYWORDS="-* ~amd64"
 SLOT="0"
-IUSE="-nodep xfce"
+IUSE="+development nodep xfce"
 
 RDEPEND="!nodep? ( dev-libs/atk[multilib_abi_x86]
 		x11-libs/cairo[multilib_abi_x86]

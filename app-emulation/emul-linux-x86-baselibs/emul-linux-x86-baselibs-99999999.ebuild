@@ -10,7 +10,7 @@ LICENSE="GPL-2"
 
 KEYWORDS="-* ~amd64"
 SLOT="0"
-IUSE="-nodep ldap kerberos"
+IUSE="+development ldap kerberos nodep"
 
 RDEPEND="!nodep? ( kerberos? ( app-crypt/mit-krb5[multilib_abi_x86] )
 		ldap? ( net-nds/openldap[multilib_abi_x86] )
