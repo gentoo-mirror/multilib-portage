@@ -44,3 +44,4 @@ PKG_CONFIG="/usr/bin/pkg-config"
 
 CDEFINE_amd64="__x86_64__"
 CDEFINE_x86="__i386__"
+CDEFINE_x32="__ILP32__"
