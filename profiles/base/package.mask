@@ -2,3 +2,8 @@
 # mask libffi-3.0.12, build system is broken and only
 # installs 64bit libs even with support for 32bit enabled
 =dev-libs/libffi-3.0.12
+
+# Thomas Sachau <tommy@gentoo.org> (24 Mar 2013)
+# mask libffi-3.0.13, breaks at least multilib support
+# in python and glib
+=dev-libs/libffi-3.0.13
