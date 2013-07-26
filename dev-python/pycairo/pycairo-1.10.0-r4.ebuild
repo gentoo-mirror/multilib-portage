@@ -20,10 +20,13 @@ SRC_URI="http://cairographics.org/releases/py2cairo-${PYCAIRO_PYTHON2_VERSION}.t
 # || ( LGPL-2.1 MPL-1.1 ) for pycairo 1.8.10.
 LICENSE="LGPL-3 || ( LGPL-2.1 MPL-1.1 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~hppa ia64 ~mips ppc ppc64 ~sparc x86 ~amd64-fbsd ~amd64-linux ~x86-fbsd ~ppc-macos ~x64-macos ~x86-linux ~x86-macos"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos"
 IUSE="doc examples +svg test xcb"
 
-RDEPEND="
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
+# Note: xpyb is used as the C header, not Python modules
+RDEPEND="${PYTHON_DEPS}
 	>=x11-libs/cairo-1.10.0[svg?,xcb?]
 	xcb? ( x11-libs/xpyb )
 "
@@ -121,7 +124,6 @@ src_prepare() {
 		else
 			cp -r -l "${WORKDIR}/py2cairo-${PYCAIRO_PYTHON2_VERSION}" "${BUILD_DIR}" || die
 		fi
-
 	}
 	python_foreach_impl preparation
 }
