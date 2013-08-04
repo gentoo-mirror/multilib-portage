@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/portage/portage-2.2.0_alpha169.ebuild,v 1.1 2013/03/22 02:43:09 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/portage/portage-2.2.0_alpha193.ebuild,v 1.1 2013/08/03 22:44:58 zmedico Exp $
 
 # Require EAPI 2 since we now require at least python-2.6 (for python 3
 # syntax support) which also requires EAPI 2.
@@ -10,17 +10,17 @@ PYTHON_COMPAT=(
 	python3_1 python3_2 python3_3 python3_4
 	python2_6 python2_7
 )
-inherit eutils git-2 python
+inherit eutils git-2 multilib
 
 EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="ed2bdce054f8c05045da13241896e2ada5babb6d"
+EGIT_COMMIT="38858c9d01ae9d713b7124c2cb5db63ba137c6b8"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="http://www.gentoo.org/proj/en/portage/index.xml"
 LICENSE="GPL-2"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~sparc-fbsd ~x86 ~x86-fbsd"
 SLOT="0"
-IUSE="build doc epydoc +ipc linguas_pl linguas_ru pypy2_0 python2 python3 selinux xattr"
+IUSE="build doc epydoc +ipc linguas_ru pypy2_0 python2 python3 selinux xattr"
 
 for _pyimpl in ${PYTHON_COMPAT[@]} ; do
 	IUSE+=" python_targets_${_pyimpl}"
@@ -33,15 +33,15 @@ python_dep_ssl="python3? ( =dev-lang/python-3*[ssl] )
 	!pypy2_0? ( !python2? ( !python3? (
 		|| ( >=dev-lang/python-2.7[ssl] dev-lang/python:2.6[threads,ssl] )
 	) ) )
-	pypy2_0? ( !python2? ( !python3? ( dev-python/pypy:2.0[bzip2,ssl] ) ) )
+	pypy2_0? ( !python2? ( !python3? ( virtual/pypy:2.0[bzip2] ) ) )
 	python2? ( !python3? ( || ( dev-lang/python:2.7[ssl] dev-lang/python:2.6[ssl,threads] ) ) )"
 python_dep="${python_dep_ssl//\[ssl\]}"
 python_dep="${python_dep//,ssl}"
 python_dep="${python_dep//ssl,}"
 
 python_dep="${python_dep}
-	python_targets_pypy1_9? ( dev-python/pypy:1.9 )
-	python_targets_pypy2_0? ( dev-python/pypy:2.0 )
+	python_targets_pypy1_9? ( virtual/pypy:1.9 )
+	python_targets_pypy2_0? ( virtual/pypy:2.0 )
 	python_targets_python2_6? ( dev-lang/python:2.6 )
 	python_targets_python2_7? ( dev-lang/python:2.7 )
 	python_targets_python3_1? ( dev-lang/python:3.1 )
@@ -93,8 +93,61 @@ compatible_python_is_selected() {
 }
 
 current_python_has_xattr() {
-	[[ $("${EPREFIX}/usr/bin/python" -c 'import sys ; sys.stdout.write(sys.hexversion >= 0x3030000 and "yes" or "no")') = yes ]] || \
-	"${EPREFIX}/usr/bin/python" -c 'import xattr' 2>/dev/null
+	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
+	local PYTHON=${EPREFIX}/usr/bin/${EPYTHON}
+	[[ $("${PYTHON}" -c 'import sys ; sys.stdout.write(sys.hexversion >= 0x3030000 and "yes" or "no")') = yes ]] || \
+	"${PYTHON}" -c 'import xattr' 2>/dev/null
+}
+
+call_with_python_impl() {
+	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
+	env EPYTHON=${EPYTHON} "$@"
+}
+
+get_python_interpreter() {
+	[ $# -eq 1 ] || die "expected 1 argument, got $#: $*"
+	local impl=$1 python
+	case "${impl}" in
+		python*)
+			python=${impl/_/.}
+			;;
+		pypy*)
+			python=${impl/_/.}
+			python=${python/pypy/pypy-c}
+			;;
+		*)
+			die "Unrecognized python target: ${impl}"
+	esac
+	echo ${python}
+}
+
+get_python_sitedir() {
+	[ $# -eq 1 ] || die "expected 1 argument, got $#: $*"
+	local impl=$1
+	local site_dir=/usr/$(get_libdir)/${impl/_/.}/site-packages
+	[[ -d ${EROOT}${site_dir} ]] || \
+		ewarn "site-packages dir missing for ${impl}: ${EROOT}${site_dir}"
+	echo "${site_dir}"
+}
+
+python_compileall() {
+	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
+	local d=${EPREFIX}$1 PYTHON=${EPREFIX}/usr/bin/${EPYTHON}
+	local d_image=${D}${d#/}
+	[[ -d ${d_image} ]] || die "directory does not exist: ${d_image}"
+	case "${EPYTHON}" in
+		python*)
+			"${PYTHON}" -m compileall -q -f -d "${d}" "${d_image}" || die
+			# Note: Using -OO breaks emaint, since it requires __doc__,
+			# and __doc__ is None when -OO is used.
+			"${PYTHON}" -O -m compileall -q -f -d "${d}" "${d_image}" || die
+			;;
+		pypy*)
+			"${PYTHON}" -m compileall -q -f -d "${d}" "${d_image}" || die
+			;;
+		*)
+			die "Unrecognized EPYTHON value: ${EPYTHON}"
+	esac
 }
 
 pkg_setup() {
@@ -131,12 +184,16 @@ pkg_setup() {
 		fi
 	fi
 
+	# We use EPYTHON to designate the active python interpreter,
+	# but we only export when needed, via call_with_python_impl.
+	EPYTHON=python
+	export -n EPYTHON
 	if use python3; then
-		python_set_active_version 3
+		EPYTHON=python3
 	elif use python2; then
-		python_set_active_version 2
+		EPYTHON=python2
 	elif use pypy2_0; then
-		python_set_active_version 2.7-pypy-2.0
+		EPYTHON=pypy-c2.0
 	fi
 }
 
@@ -170,15 +227,23 @@ src_prepare() {
 			|| die "failed to append to make.globals"
 	fi
 
+	local set_shebang=
 	if use python3; then
-		einfo "Converting shebangs for python3..."
-		python_convert_shebangs -r 3 .
+		set_shebang=python3
 	elif use python2; then
-		einfo "Converting shebangs for python2..."
-		python_convert_shebangs -r 2 .
+		set_shebang=python2
 	elif use pypy2_0; then
-		einfo "Converting shebangs for pypy-c2.0..."
-		python_convert_shebangs -r 2.7-pypy-2.0 .
+		set_shebang=pypy-c2.0
+	fi
+	if [[ -n ${set_shebang} ]] ; then
+		einfo "Converting shebangs for ${set_shebang}..."
+		while read -r -d $'\0' ; do
+			local shebang=$(head -n1 "$REPLY")
+			if [[ ${shebang} == "#!/usr/bin/python"* ]] ; then
+				sed -i -e "1s:python:${set_shebang}:" "$REPLY" || \
+					die "sed failed"
+			fi
+		done < <(find . -type f -print0)
 	fi
 
 	if [[ -n ${EPREFIX} ]] ; then
@@ -193,32 +258,34 @@ src_prepare() {
 			die "Failed to patch portage.const.EPREFIX"
 
 		einfo "Prefixing shebangs ..."
-		find . -type f -print0 | \
 		while read -r -d $'\0' ; do
 			local shebang=$(head -n1 "$REPLY")
 			if [[ ${shebang} == "#!"* && ! ${shebang} == "#!${EPREFIX}/"* ]] ; then
 				sed -i -e "1s:.*:#!${EPREFIX}${shebang:2}:" "$REPLY" || \
 					die "sed failed"
 			fi
-		done
+		done < <(find . -type f -print0)
 
 		einfo "Adjusting make.globals ..."
-		sed -e 's|^SYNC=.*|SYNC="rsync://rsync.prefix.freens.org/gentoo-portage-prefix"|' \
-			-e "s|^\(PORTDIR=\)\(/usr/portage\)|\\1\"${EPREFIX}\\2\"|" \
-			-e "s|^\(PORTAGE_TMPDIR=\)\(/var/tmp\)|\\1\"${EPREFIX}\\2\"|" \
+		sed -e "s|\(/usr/portage\)|${EPREFIX}\\1|" \
+			-e "s|^\(PORTAGE_TMPDIR=\"\)\(/var/tmp\"\)|\\1${EPREFIX}\\2|" \
 			-i cnf/make.globals || die "sed failed"
+
+		einfo "Adjusting repos.conf ..."
+		sed -e "s|^\(main-repo = \).*|\\1gentoo_prefix|" \
+			-e "s|^\\[gentoo\\]|[gentoo_prefix]|" \
+			-e "s|^\(location = \)\(/usr/portage\)|\\1${EPREFIX}\\2|" \
+			-e "s|^\(sync-uri = \).*|\\1rsync://rsync.prefix.freens.org/gentoo-portage-prefix|" \
+			-i cnf/repos.conf || die "sed failed"
 
 		einfo "Adding FEATURES=force-prefix to make.globals ..."
 		echo -e '\nFEATURES="${FEATURES} force-prefix"' >> cnf/make.globals \
 			|| die "failed to append to make.globals"
 	fi
 
-	echo -e '\nFEATURES="${FEATURES} preserve-libs"' >> cnf/make.globals \
-		|| die "failed to append to make.globals"
-
 	cd "${S}/cnf" || die
-	if [ -f "make.conf.${ARCH}".diff ]; then
-		patch make.conf "make.conf.${ARCH}".diff || \
+	if [ -f "make.conf.example.${ARCH}".diff ]; then
+		patch make.conf.example "make.conf.example.${ARCH}".diff || \
 			die "Failed to patch make.conf.example"
 	else
 		eerror ""
@@ -230,11 +297,13 @@ src_prepare() {
 
 src_compile() {
 	if use doc; then
+		call_with_python_impl \
 		emake docbook || die
 	fi
 
 	if use epydoc; then
 		einfo "Generating api docs"
+		call_with_python_impl \
 		emake epydoc || die
 	fi
 }
@@ -242,10 +311,12 @@ src_compile() {
 src_test() {
 	# make files executable, in case they were created by patch
 	find bin -type f | xargs chmod +x
+	call_with_python_impl \
 	emake test || die
 }
 
 src_install() {
+	call_with_python_impl \
 	emake DESTDIR="${D}" \
 		sysconfdir="${EPREFIX}/etc" \
 		prefix="${EPREFIX}/usr" \
@@ -254,26 +325,27 @@ src_install() {
 	# Use dodoc for compression, since the Makefile doesn't do that.
 	dodoc "${S}"/{ChangeLog,NEWS,RELEASE-NOTES} || die
 
-	if use linguas_pl; then
-		doman -i18n=pl "${S_PL}"/man/pl/*.[0-9] || die
-		doman -i18n=pl_PL.UTF-8 "${S_PL}"/man/pl_PL.UTF-8/*.[0-9] || die
-	fi
-
 	# Allow external portage API consumers to import portage python modules
 	# (this used to be done with PYTHONPATH setting in /etc/env.d).
 	# For each of PYTHON_TARGETS, install a tree of *.py symlinks in
 	# site-packages, and compile with the corresponding interpreter.
-	local impl files mod_dir dest_mod_dir python relative_path files x
+	local impl files mod_dir dest_mod_dir python relative_path x
 	for impl in "${PYTHON_COMPAT[@]}" ; do
 		use "python_targets_${impl}" || continue
+		if use build && [[ ${ROOT} == / &&
+			! -x ${EPREFIX}/usr/bin/$(get_python_interpreter ${impl}) ]] ; then
+			# Tolerate --nodeps at beginning of stage1 for catalyst
+			ewarn "skipping python_targets_${impl}, interpreter not found"
+			continue
+		fi
 		while read -r mod_dir ; do
-			cd "${S}/pym/${mod_dir}" || die
+			cd "${ED}/usr/lib/portage/pym/${mod_dir}" || die
 			files=$(echo *.py)
 			if [ -z "${files}" ] || [ "${files}" = "*.py" ]; then
 				# __pycache__ directories contain no py files
 				continue
 			fi
-			dest_mod_dir=/usr/$(get_libdir)/${impl/_/.}/site-packages/${mod_dir}
+			dest_mod_dir=$(get_python_sitedir ${impl})/${mod_dir}
 			dodir "${dest_mod_dir}" || die
 			relative_path=../../../lib/portage/pym/${mod_dir}
 			x=/${mod_dir}
@@ -285,22 +357,15 @@ src_install() {
 				dosym "${relative_path}/${x}" \
 					"${dest_mod_dir}/${x}" || die
 			done
-		done < <(cd "${S}"/pym || die ; find * -type d ! -path "portage/tests*")
-		dest_mod_dir=/usr/$(get_libdir)/${impl/_/.}/site-packages
-		case "${impl}" in
-			python*)
-				python=${impl/_/.}
-				python=${EPREFIX}/usr/bin/${python}
-				"${python}" -m compileall -q -f -d "${EPREFIX}${dest_mod_dir}" "${ED}${dest_mod_dir#/}" || die
-				"${python}" -OO -m compileall -q -f -d "${EPREFIX}${dest_mod_dir}" "${ED}${dest_mod_dir#/}" || die
-				;;
-			pypy*)
-				python=${impl/_/.}
-				python=${EPREFIX}/usr/bin/${python/pypy/pypy-c}
-				"${python}" -m compileall -q -f -d "${EPREFIX}${dest_mod_dir}" "${ED}${dest_mod_dir#/}" || die
-				;;
-		esac
+		done < <(cd "${ED}"/usr/lib/portage/pym || die ; find * -type d ! -path "portage/tests*")
+		cd "${S}" || die
+		EPYTHON=$(get_python_interpreter ${impl}) \
+		python_compileall "$(get_python_sitedir ${impl})"
 	done
+
+	# Compile /usr/lib/portage/pym with the active interpreter, since portage
+	# internal commands force this directory to the beginning of sys.path.
+	python_compileall /usr/lib/portage/pym
 }
 
 pkg_preinst() {
@@ -319,43 +384,150 @@ pkg_preinst() {
 		ewarn "enable USE=python3 for $CATEGORY/$PN."
 	fi
 
-	has_version "<=${CATEGORY}/${PN}-2.2_pre5" \
-		&& WORLD_MIGRATION_UPGRADE=true || WORLD_MIGRATION_UPGRADE=false
+	# elog dir must exist to avoid logrotate error for bug #415911.
+	# This code runs in preinst in order to bypass the mapping of
+	# portage:portage to root:root which happens after src_install.
+	keepdir /var/log/portage/elog
+	# This is allowed to fail if the user/group are invalid for prefix users.
+	if chown portage:portage "${ED}"var/log/portage{,/elog} 2>/dev/null ; then
+		chmod g+s,ug+rwx "${ED}"var/log/portage{,/elog}
+	fi
 
 	# If portage-2.1.6 is installed and the preserved_libs_registry exists,
 	# assume that the NEEDED.ELF.2 files have already been generated.
 	has_version "<=${CATEGORY}/${PN}-2.2_pre7" && \
-		! ( [ -e "${EROOT}"var/lib/portage/preserved_libs_registry ] && \
-		has_version ">=${CATEGORY}/${PN}-2.1.6_rc" ) \
+		! { [ -e "${EROOT}"var/lib/portage/preserved_libs_registry ] && \
+		has_version ">=${CATEGORY}/${PN}-2.1.6_rc" ; } \
 		&& NEEDED_REBUILD_UPGRADE=true || NEEDED_REBUILD_UPGRADE=false
+
+	if has_version "<${CATEGORY}/${PN}-2.1.13" || \
+		{
+			has_version ">=${CATEGORY}/${PN}-2.2_rc0" && \
+			has_version "<${CATEGORY}/${PN}-2.2.0_alpha189"
+		} ; then
+		USERPRIV_UPGRADE=true
+		USERSYNC_UPGRADE=true
+		REPOS_CONF_UPGRADE=true
+		REPOS_CONF_SYNC=
+		type portageq >/dev/null 2>&1 && \
+			REPOS_CONF_SYNC=$(portageq envvar SYNC)
+	else
+		USERPRIV_UPGRADE=false
+		USERSYNC_UPGRADE=false
+		REPOS_CONF_UPGRADE=false
+	fi
+}
+
+get_ownership() {
+	case ${USERLAND} in
+		BSD)
+			stat -f '%Su:%Sg' "${1}"
+			;;
+		*)
+			stat -c '%U:%G' "${1}"
+			;;
+	esac
+}
+
+new_config_protect() {
+	# Generate a ._cfg file even if the target file
+	# does not exist, ensuring that the user will
+	# notice the config change.
+	local basename=${1##*/}
+	local dirname=${1%/*}
+	local i=0
+	while true ; do
+		local filename=$(
+			echo -n "${dirname}/._cfg"
+			printf "%04d" ${i}
+			echo -n "_${basename}"
+		)
+		[[ -e ${filename} ]] || break
+		(( i++ ))
+	done
+	echo "${filename}"
 }
 
 pkg_postinst() {
-	if $WORLD_MIGRATION_UPGRADE && \
-		grep -q "^@" "${EROOT}/var/lib/portage/world"; then
-		einfo "moving set references from the worldfile into world_sets"
-		cd "${EROOT}/var/lib/portage/"
-		grep "^@" world >> world_sets
-		sed -i -e '/^@/d' world
+
+	if ${REPOS_CONF_UPGRADE} ; then
+		einfo "Generating repos.conf"
+		local repo_name=
+		[[ -f ${PORTDIR}/profiles/repo_name ]] && \
+			repo_name=$(< "${PORTDIR}/profiles/repo_name")
+		if [[ -z ${REPOS_CONF_SYNC} ]] ; then
+			REPOS_CONF_SYNC=$(grep "^sync-uri =" "${EROOT}/usr/share/portage/config/repos.conf")
+			REPOS_CONF_SYNC=${REPOS_CONF_SYNC##* }
+		fi
+		local sync_type=
+		[[ ${REPOS_CONF_SYNC} == git://* ]] && sync_type=git
+
+		cat <<-EOF > "${T}/repos.conf"
+		[DEFAULT]
+		main-repo = ${repo_name:-gentoo}
+
+		[${repo_name:-gentoo}]
+		location = ${PORTDIR:-${EPREFIX}/usr/portage}
+		sync-type = ${sync_type:-rsync}
+		sync-uri = ${REPOS_CONF_SYNC}
+		EOF
+		local dest=${EROOT}/etc/portage/repos.conf
+		if [[ ! -f ${dest} ]] && mkdir -p "${dest}" 2>/dev/null ; then
+			dest=${EROOT}/etc/portage/repos.conf/${repo_name:-gentoo}.conf
+		fi
+		# Don't install the config update if the desired repos.conf directory
+		# and config file exist, since users may accept it blindly and break
+		# their config (bug #478726).
+		[[ -e ${EROOT}/etc/portage/repos.conf/${repo_name:-gentoo}.conf ]] || \
+			mv "${T}/repos.conf" "$(new_config_protect "${dest}")"
+
+		if [[ ${PORTDIR} == ${EPREFIX}/usr/portage ]] ; then
+			einfo "Generating make.conf PORTDIR setting for backward compatibility"
+			for dest in "${EROOT}/etc/make.conf" "${EROOT}/etc/portage/make.conf" ; do
+				[[ -e ${dest} ]] && break
+			done
+			[[ -d ${dest} ]] && dest=${dest}/portdir.conf
+			rm -rf "${T}/make.conf"
+			[[ -f ${dest} ]] && cat "${dest}" > "${T}/make.conf"
+			cat <<-EOF >> "${T}/make.conf"
+
+			# Set PORTDIR for backward compatibility with various tools:
+			#   gentoo-bashcomp - bug #478444
+			#   euse - bug #474574
+			#   euses and ufed - bug #478318
+			PORTDIR="${EPREFIX}/usr/portage"
+			EOF
+			mkdir -p "${dest%/*}"
+			mv "${T}/make.conf" "$(new_config_protect "${dest}")"
+		fi
 	fi
 
-	if $NEEDED_REBUILD_UPGRADE ; then
+	if ${NEEDED_REBUILD_UPGRADE} ; then
 		einfo "rebuilding NEEDED.ELF.2 files"
+		local cpv filename line newline
 		for cpv in "${EROOT}/var/db/pkg"/*/*; do
-			if [ -f "${cpv}/NEEDED" ]; then
-				rm -f "${cpv}/NEEDED.ELF.2"
-				while read line; do
-					filename=${line% *}
-					needed=${line#* }
-					needed=${needed//+/++}
-					needed=${needed//#/##}
-					needed=${needed//%/%%}
-					newline=$(scanelf -BF "%a;%F;%S;%r;${needed}" $filename)
-					newline=${newline//  -  }
-					echo "${newline:3}" >> "${cpv}/NEEDED.ELF.2"
-				done < "${cpv}/NEEDED"
-			fi
+			[[ -f "${cpv}/NEEDED" && ! -f "${cpv}/NEEDED.ELF.2" ]] || continue
+			while read -r line; do
+				filename=${line% *}
+				newline=$(scanelf -BF "%a;%F;%S;%r;%n" "${ROOT%/}${filename}")
+				newline=${newline//  -  }
+				[[ ${#ROOT} -gt 1 ]] && newline=${newline/${ROOT%/}}
+				echo "${newline:3}" >> "${cpv}/NEEDED.ELF.2"
+			done < "${cpv}/NEEDED"
 		done
+	fi
+
+	local distdir=${PORTAGE_ACTUAL_DISTDIR-${DISTDIR}}
+
+	if ${USERSYNC_UPGRADE} && \
+		[[ -d ${PORTDIR} && -w ${PORTDIR} ]] ; then
+		local ownership=$(get_ownership "${PORTDIR}")
+		if [[ -n ${ownership} ]] ; then
+			einfo "Adjusting PORTDIR permissions for usersync"
+			find "${PORTDIR}" -path "${distdir%/}" -prune -o \
+				! \( -user "${ownership%:*}" -a -group "${ownership#*:}" \) \
+				-exec chown "${ownership}" {} +
+		fi
 	fi
 
 	einfo
@@ -364,8 +536,17 @@ pkg_postinst() {
 	einfo
 	elog "The bin/ dir of the overlay has some scripts to switch from lib32"
 	elog "to MULTILIB_ABI or to add the default MULTILIB_ABI flags"
-}
 
-pkg_postrm() {
-	python_mod_cleanup /usr/lib/portage/pym
+	# Do this last, since it could take a long time if there
+	# are lots of live sources, and the user may be tempted
+	# to kill emerge while it is running.
+	if ${USERPRIV_UPGRADE} && \
+		[[ -d ${distdir} && -w ${distdir} ]] ; then
+		local ownership=$(get_ownership "${distdir}")
+		if [[ ${ownership#*:} == portage ]] ; then
+			einfo "Adjusting DISTDIR permissions for userpriv"
+			find "${distdir}" -maxdepth 1 -type d -uid 0 \
+				-exec chown -R portage:portage {} +
+		fi
+	fi
 }
