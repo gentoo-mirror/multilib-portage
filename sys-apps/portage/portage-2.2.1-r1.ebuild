@@ -14,7 +14,7 @@ inherit eutils git-2 multilib
 
 EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="2efeb36f8e3fff17de8230d84081bf6b8a733ea2"
+EGIT_COMMIT="af379d621327813e4a3e41af885c0d13c42999ac"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="http://www.gentoo.org/proj/en/portage/index.xml"
 LICENSE="GPL-2"
