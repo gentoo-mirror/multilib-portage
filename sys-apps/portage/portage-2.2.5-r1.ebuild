@@ -1,20 +1,20 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/portage/portage-2.2.0.ebuild,v 1.2 2013/08/13 00:59:44 zmedico Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/portage/portage-2.2.5.ebuild,v 1.1 2013/09/15 11:18:49 zmedico Exp $
 
 # Require EAPI 2 since we now require at least python-2.6 (for python 3
 # syntax support) which also requires EAPI 2.
 EAPI=2
 PYTHON_COMPAT=(
-	pypy1_9 pypy2_0
-	python3_1 python3_2 python3_3 python3_4
+	pypy2_0
+	python3_2 python3_3 python3_4
 	python2_6 python2_7
 )
 inherit eutils git-2 multilib
 
 EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="b8889dd3884d43f911ff0d7faffa1fd836ad28b0"
+EGIT_COMMIT="64e7d296a0dc87d73bcc9d28b09dae71769e2aa1"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="http://www.gentoo.org/proj/en/portage/index.xml"
 LICENSE="GPL-2"
@@ -40,11 +40,9 @@ python_dep="${python_dep//,ssl}"
 python_dep="${python_dep//ssl,}"
 
 python_dep="${python_dep}
-	python_targets_pypy1_9? ( virtual/pypy:1.9 )
 	python_targets_pypy2_0? ( virtual/pypy:2.0 )
 	python_targets_python2_6? ( dev-lang/python:2.6 )
 	python_targets_python2_7? ( dev-lang/python:2.7 )
-	python_targets_python3_1? ( dev-lang/python:3.1 )
 	python_targets_python3_2? ( dev-lang/python:3.2 )
 	python_targets_python3_3? ( dev-lang/python:3.3 )
 	python_targets_python3_4? ( dev-lang/python:3.4 )
@@ -409,8 +407,8 @@ pkg_preinst() {
 		USERSYNC_UPGRADE=true
 		REPOS_CONF_UPGRADE=true
 		REPOS_CONF_SYNC=
-		type portageq >/dev/null 2>&1 && \
-			REPOS_CONF_SYNC=$(portageq envvar SYNC)
+		type -P portageq >/dev/null 2>&1 && \
+			REPOS_CONF_SYNC=$("$(type -P portageq)" envvar SYNC)
 	else
 		USERPRIV_UPGRADE=false
 		USERSYNC_UPGRADE=false
