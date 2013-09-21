@@ -38,6 +38,10 @@ RESTRICT_MULTILIB_BINARIES="app-admin/eselect-python app-arch/rpm2targz app-cryp
 
 USE="${USE} multilib"
 
+# Enable building binaries for all target ABIs, so multilib-portage can still use USE=abiwrapper to select
+# the binaries they want
+COMPLETE_MULTILIB=yes
+
 # set a default for $PKG_CONFIG to avoid a collision with crossdev-wrappers
 # suggested by and thanks to ohnobinki
 PKG_CONFIG="/usr/bin/pkg-config"
