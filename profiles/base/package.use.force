@@ -9,6 +9,7 @@ app-emulation/wine multilib
 sys-devel/gcc multilib
 sys-libs/glibc multilib
 sys-libs/libstdc++-v3 multilib
+www-plugins/adobe-flash multilib
 www-plugins/nspluginwrapper multilib
 x11-drivers/nvidia-drivers multilib
 
