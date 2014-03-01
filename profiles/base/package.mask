@@ -1,2 +1,1 @@
 sys-apps/portage::gentoo
--app-emulation/emul-linux-x86-baselibs-99999999
