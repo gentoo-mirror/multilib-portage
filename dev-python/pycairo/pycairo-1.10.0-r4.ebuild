@@ -1,9 +1,10 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/pycairo/pycairo-1.10.0-r4.ebuild,v 1.4 2013/01/14 17:29:27 bicatali Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-python/pycairo/pycairo-1.10.0-r4.ebuild,v 1.21 2015/04/08 08:05:21 mgorny Exp $
 
 EAPI="5"
-PYTHON_COMPAT=( python2_{6,7} python3_{1,2,3} )
+PYTHON_COMPAT=( python{2_7,3_3,3_4} )
+PYTHON_REQ_USE='threads(+)'
 
 inherit eutils python-r1 waf-utils
 
@@ -34,8 +35,6 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	test? ( dev-python/pytest[${PYTHON_USEDEP}] )
 "
-
-PYTHON_CFLAGS=("2.* + -fno-strict-aliasing")
 
 # In case if waf-utils.eclass actually accepts waf-utils_waflibdir() as
 # a function.
@@ -104,6 +103,7 @@ src_prepare() {
 	rm -f src/config.h || die
 	epatch "${FILESDIR}/${PN}-1.10.0-svg_check.patch"
 	epatch "${FILESDIR}/${PN}-1.10.0-xpyb.patch"
+	epatch "${FILESDIR}/${PN}-1.10.0-waf-unpack.patch"
 	epatch "${FILESDIR}"/py2cairo-1.10.0-ppc-darwin.patch
 	cd "$(waf-utils_waflibdir waf)" || die "Unable to patch waflib"
 	epatch "${DISTDIR}"/${P}-waf-multilib.patch
@@ -119,8 +119,14 @@ src_prepare() {
 	popd > /dev/null
 
 	preparation() {
-		if [[ ${EPYTHON} == python3.* ]]; then
+		if python_is_python3; then
 			cp -r -l "${WORKDIR}/pycairo-${PYCAIRO_PYTHON3_VERSION}" "${BUILD_DIR}" || die
+			pushd "${BUILD_DIR}" > /dev/null
+			wafdir="$(./waf unpack)"
+			pushd "${wafdir}" > /dev/null
+			epatch "${FILESDIR}/${PN}-1.10.0-waf-py3_4.patch"
+			popd > /dev/null
+			popd > /dev/null
 		else
 			cp -r -l "${WORKDIR}/py2cairo-${PYCAIRO_PYTHON2_VERSION}" "${BUILD_DIR}" || die
 		fi
@@ -149,6 +155,7 @@ src_configure() {
 }
 
 src_compile() {
+	MAKEOPTS="$MAKEOPTS -j1"
 	python_foreach_impl run_in_build_dir waf-utils_src_compile
 }
 
