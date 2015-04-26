@@ -22,9 +22,9 @@ following to /etc/portage/repos.conf or create it with the following
 content:
 
 [DEFAULT]
-eclass-overrides = gentoo multilib
-[multilib]
-eclass-overrides = gentoo multilib
+eclass-overrides = gentoo multilib-portage
+[multilib-portage]
+eclass-overrides = gentoo multilib-portage
 
 5.
 
