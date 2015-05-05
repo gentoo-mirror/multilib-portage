@@ -1,12 +1,12 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/portage/portage-2.2.15.ebuild,v 1.2 2014/12/06 20:13:44 dolsen Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/portage/portage-2.2.18.ebuild,v 1.9 2015/04/26 15:42:47 zlogene Exp $
 
 EAPI=5
 
 PYTHON_COMPAT=(
 	pypy
-	python3_2 python3_3 python3_4
+	python3_3 python3_4
 	python2_7
 )
 # Note: substituted below
@@ -16,9 +16,9 @@ inherit distutils-r1 git-2 multilib
 
 EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="6a8389a3a9f6af80bbb4108d5bb6f4b847b44577"
+EGIT_COMMIT="600cb1fd9daed3b01d8f51b38c29f000376b6513"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
-HOMEPAGE="http://www.gentoo.org/proj/en/portage/index.xml"
+HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
 LICENSE="GPL-2"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
@@ -36,7 +36,7 @@ DEPEND="!build? ( ${PYTHON_DEPS//bzip2(+)/ssl(+),bzip2(+)} )
 # quite slow, so it's not considered in the dependencies as an alternative to
 # to python-3.3 / pyxattr. Also, xattr support is only tested with Linux, so
 # for now, don't pull in xattr deps for other kernels.
-# For whirlpool hash, require python[ssl] or python-mhash (bug #425046).
+# For whirlpool hash, require python[ssl] (bug #425046).
 # For compgen, require bash[readline] (bug #445576).
 RDEPEND="
 	dev-lang/python-exec:2
@@ -53,7 +53,7 @@ RDEPEND="
 	xattr? ( kernel_linux? (
 		>=sys-apps/install-xattr-0.3
 		$(python_gen_cond_dep 'dev-python/pyxattr[${PYTHON_USEDEP}]' \
-			python{2_7,3_2} pypy)
+			python2_7 pypy)
 	) )
 	!<app-admin/logrotate-3.8.0
 	>=sys-apps/abi-wrapper-1.0-r6"
@@ -220,6 +220,36 @@ pkg_preinst() {
 		USERSYNC_UPGRADE=false
 		REPOS_CONF_UPGRADE=false
 	fi
+}
+
+get_ownership() {
+	case ${USERLAND} in
+		BSD)
+			stat -f '%Su:%Sg' "${1}"
+			;;
+		*)
+			stat -c '%U:%G' "${1}"
+			;;
+	esac
+}
+
+new_config_protect() {
+	# Generate a ._cfg file even if the target file
+	# does not exist, ensuring that the user will
+	# notice the config change.
+	local basename=${1##*/}
+	local dirname=${1%/*}
+	local i=0
+	while true ; do
+		local filename=$(
+			echo -n "${dirname}/._cfg"
+			printf "%04d" ${i}
+			echo -n "_${basename}"
+		)
+		[[ -e ${filename} ]] || break
+		(( i++ ))
+	done
+	echo "${filename}"
 }
 
 pkg_postinst() {
