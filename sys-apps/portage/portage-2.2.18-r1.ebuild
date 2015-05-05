@@ -14,7 +14,7 @@ PYTHON_REQ_USE='bzip2(+)'
 
 inherit distutils-r1 git-2 multilib
 
-EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/portage.git"
+EGIT_REPO_URI="git://anongit.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
 EGIT_COMMIT="600cb1fd9daed3b01d8f51b38c29f000376b6513"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
