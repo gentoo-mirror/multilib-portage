@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -7,7 +7,7 @@ EAPI=4
 inherit autotools-utils multilib
 
 DESCRIPTION="Wraps binaries which have implementations for different ABIs"
-HOMEPAGE="http://gentoo.org/~binki/abi-wrapper.xhtml https://bitbucket.org/gentoo/abi-wrapper"
+HOMEPAGE="https://dev.gentoo.org/~binki/abi-wrapper.xhtml https://bitbucket.org/gentoo/abi-wrapper"
 SRC_URI="ftp://mirror.ohnopub.net/mirror/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
@@ -23,7 +23,7 @@ src_configure() {
 		# reading the symlink repeatedly, portage will end up trying to
 		# directly execute "abi-wrapper" if abi-wrapper preserves
 		# argv[0]. Thus blacklist python from argv[0] preservation.
-		# http://git.overlays.gentoo.org/gitweb/?p=proj/portage.git;a=blob;f=pym/portage/__init__.py;h=46bdc961c04a01f9bd92af8b0751e43dfea2029d;hb=d44df83d9f00405a62b25439ddc1915e6366a300#l334
+		# https://github.com/gentoo/portage/blob/687d7193812e3ebbf2e32f984564381e915f21f9/pym/portage/__init__.py#L392
 		# Portage does this because it is afraid that it may leave the
 		# python symlink in an inconstent state or replace it with an
 		# incompatible version of python, so portage needs to learn that
