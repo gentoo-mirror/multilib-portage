@@ -16,7 +16,7 @@ inherit distutils-r1 git-2 multilib
 
 EGIT_REPO_URI="git://anongit.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="cf7284cba66a1d6e747ce916de24a5c25b5654f8"
+EGIT_COMMIT="0c879b950b70c54cd672ddc0541744d7785ee04b"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
