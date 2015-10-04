@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/portage/portage-2.2.18.ebuild,v 1.9 2015/04/26 15:42:47 zlogene Exp $
+# $Id$
 
 EAPI=5
 
@@ -26,6 +26,7 @@ SLOT="0"
 IUSE="build doc epydoc +ipc linguas_ru selinux xattr"
 
 DEPEND="!build? ( ${PYTHON_DEPS//bzip2(+)/ssl(+),bzip2(+)} )
+	>=app-arch/tar-1.27
 	dev-lang/python-exec:2
 	>=sys-apps/sed-4.0.5 sys-devel/patch
 	doc? ( app-text/xmlto ~app-text/docbook-xml-dtd-4.4 )
@@ -39,6 +40,7 @@ DEPEND="!build? ( ${PYTHON_DEPS//bzip2(+)/ssl(+),bzip2(+)} )
 # For whirlpool hash, require python[ssl] (bug #425046).
 # For compgen, require bash[readline] (bug #445576).
 RDEPEND="
+	>=app-arch/tar-1.27
 	dev-lang/python-exec:2
 	!build? (
 		>=sys-apps/sed-4.0.5
@@ -346,4 +348,13 @@ pkg_postinst() {
 				-exec chown -R portage:portage {} +
 		fi
 	fi
+
+	einfo ""
+	einfo "This release of portage contains the new repoman code base"
+	einfo "This code base is still being developed.  So its API's are"
+	einfo "not to be considered stable and are subject to change."
+	einfo "The code released has been tested and considered ready for use."
+	einfo "This however does not guarantee it to be completely bug free."
+	einfo "Please report any bugs you may encounter."
+	einfo ""
 }
