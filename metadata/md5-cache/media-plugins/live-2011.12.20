@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile configure install postinst prepare
+DESCRIPTION=Source-code libraries for standards-based RTP/RTCP/RTSP multimedia streaming, suitable for embedded and/or low-cost streaming applications
+EAPI=4
+HOMEPAGE=http://www.live555.com/
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris
+LICENSE=LGPL-2.1
+SLOT=0
+SRC_URI=http://www.live555.com/liveMedia/public/live.2011.12.20.tar.gz
+_eclass_exported_funcs=pkg_postinst:- src_prepare:- src_configure:- src_compile:- src_install:-
+_eclasses_=eutils	f20548a2f7b0128068388cd2ec26708a	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
+_md5_=641764efbc1f20d939294cd1f3a979a1
