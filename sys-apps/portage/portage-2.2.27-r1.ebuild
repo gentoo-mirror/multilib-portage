@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -6,17 +6,16 @@ EAPI=5
 
 PYTHON_COMPAT=(
 	pypy
-	python3_3 python3_4
+	python3_3 python3_4 python3_5
 	python2_7
 )
-# Note: substituted below
 PYTHON_REQ_USE='bzip2(+)'
 
 inherit distutils-r1 git-2 multilib
 
 EGIT_REPO_URI="git://anongit.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="259272b9ffcf2c3d813487bf0119f761f32476e6"
+EGIT_COMMIT="58fb9ace0cb1bf49df2ce68b13999d303fa25756"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
@@ -25,7 +24,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~s
 SLOT="0"
 IUSE="build doc epydoc +ipc linguas_ru selinux xattr"
 
-DEPEND="!build? ( ${PYTHON_DEPS//bzip2(+)/ssl(+),bzip2(+)} )
+DEPEND="!build? ( $(python_gen_impl_dep 'ssl(+)') )
 	>=app-arch/tar-1.27
 	dev-lang/python-exec:2
 	>=sys-apps/sed-4.0.5 sys-devel/patch
@@ -68,6 +67,10 @@ PDEPEND="
 # NOTE: FEATURES=installsources requires debugedit and rsync
 
 REQUIRED_USE="epydoc? ( $(python_gen_useflags 'python2*') )"
+
+pkg_setup() {
+	use epydoc && DISTUTILS_ALL_SUBPHASE_IMPLS=( python2.7 )
+}
 
 python_prepare_all() {
 	distutils-r1_python_prepare_all
