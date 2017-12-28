@@ -42,4 +42,5 @@ app-emulation/wine-d3d0 -abi_x86_32 -abi_x86_64
 app-emulation/wine-gecko -abi_x86_32 -abi_x86_64
 app-emulation/wine-staging -abi_x86_32 -abi_x86_64
 app-emulation/wine-vanilla -abi_x86_32 -abi_x86_64
+virtual/wine -abi_x86_32 -abi_x86_64
 www-plugins/adobe-flash -abi_x86_32 -abi_x86_64
