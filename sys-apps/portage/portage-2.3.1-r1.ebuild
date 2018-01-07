@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -14,7 +14,7 @@ inherit distutils-r1 git-2 multilib
 
 EGIT_REPO_URI="git://anongit.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="e69902fbc9c41f0470461561258f596535d9f5c7"
+EGIT_COMMIT="0e3b0c33b73dd0a2b5331106baeb54b8628dae7c"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
