@@ -10,11 +10,11 @@ PYTHON_COMPAT=(
 )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 
-inherit distutils-r1 git-2 multilib
+inherit distutils-r1 git-2 multilib tmpfiles
 
 EGIT_REPO_URI="git://anongit.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="16fcf4998f4b55f1697e4358c7b232e3cab56a11"
+EGIT_COMMIT="2186b6acaa669b0bf64312d0e5294050f8aaefd0"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
@@ -44,6 +44,8 @@ RDEPEND="
 		>=sys-apps/sed-4.0.5
 		app-shells/bash:0[readline]
 		>=app-admin/eselect-1.2
+		$(python_gen_cond_dep 'dev-python/pyblake2[${PYTHON_USEDEP}]' \
+			python{2_7,3_4,3_5} pypy)
 	)
 	elibc_FreeBSD? ( sys-freebsd/freebsd-bin )
 	elibc_glibc? ( >=sys-apps/sandbox-2.2 )
@@ -119,11 +121,14 @@ python_prepare_all() {
 			-i cnf/make.globals || die "sed failed"
 
 		einfo "Adjusting repos.conf ..."
-		sed -e "s|^\(main-repo = \).*|\\1gentoo_prefix|" \
-			-e "s|^\\[gentoo\\]|[gentoo_prefix]|" \
-			-e "s|^\(location = \)\(/usr/portage\)|\\1${EPREFIX}\\2|" \
-			-e "s|^\(sync-uri = \).*|\\1rsync://rsync.prefix.bitzolder.nl/gentoo-portage-prefix|" \
+		sed -e "s|^\(location = \)\(/usr/portage\)|\\1${EPREFIX}\\2|" \
 			-i cnf/repos.conf || die "sed failed"
+		if use prefix-guest ; then
+			sed -e "s|^\(main-repo = \).*|\\1gentoo_prefix|" \
+				-e "s|^\\[gentoo\\]|[gentoo_prefix]|" \
+				-e "s|^\(sync-uri = \).*|\\1rsync://rsync.prefix.bitzolder.nl/gentoo-portage-prefix|" \
+				-i cnf/repos.conf || die "sed failed"
+		fi
 
 		einfo "Adding FEATURES=force-prefix to make.globals ..."
 		echo -e '\nFEATURES="${FEATURES} force-prefix"' >> cnf/make.globals \
@@ -174,13 +179,21 @@ python_install_all() {
 	distutils-r1_python_install_all
 
 	local targets=()
-	use doc && targets+=( install_docbook )
-	use epydoc && targets+=( install_epydoc )
+	use doc && targets+=(
+		install_docbook
+		--htmldir="${EPREFIX}/usr/share/doc/${PF}/html"
+	)
+	use epydoc && targets+=(
+		install_epydoc
+		--htmldir="${EPREFIX}/usr/share/doc/${PF}/html"
+	)
 
 	# install docs
 	if [[ ${targets[@]} ]]; then
 		esetup.py "${targets[@]}"
 	fi
+
+	dotmpfiles "${FILESDIR}"/portage-ccache.conf
 
 	# Due to distutils/python-exec limitations
 	# these must be installed to /usr/bin.
@@ -220,36 +233,6 @@ pkg_preinst() {
 	else
 		SYNC_DEPTH_UPGRADE=false
 	fi
-}
-
-get_ownership() {
-	case ${USERLAND} in
-		BSD)
-			stat -f '%Su:%Sg' "${1}"
-			;;
-		*)
-			stat -c '%U:%G' "${1}"
-			;;
-	esac
-}
-
-new_config_protect() {
-	# Generate a ._cfg file even if the target file
-	# does not exist, ensuring that the user will
-	# notice the config change.
-	local basename=${1##*/}
-	local dirname=${1%/*}
-	local i=0
-	while true ; do
-		local filename=$(
-			echo -n "${dirname}/._cfg"
-			printf "%04d" ${i}
-			echo -n "_${basename}"
-		)
-		[[ -e ${filename} ]] || break
-		(( i++ ))
-	done
-	echo "${filename}"
 }
 
 pkg_postinst() {
