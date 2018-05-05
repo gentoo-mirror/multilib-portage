@@ -1,4 +1,4 @@
-DEFINED_PHASES=install postinst prepare setup unpack
+DEFINED_PHASES=install nofetch postinst prepare setup unpack
 DEPEND=dev-util/patchelf
 DESCRIPTION=A 3D interface to the planet
 EAPI=2

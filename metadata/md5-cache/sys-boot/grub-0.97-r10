@@ -1,4 +1,4 @@
-DEFINED_PHASES=compile install postinst postrm preinst prerm setup test unpack
+DEFINED_PHASES=compile config install postinst postrm preinst prerm setup test unpack
 DEPEND=ncurses? ( >=sys-libs/ncurses-5.2-r5 ) >=app-portage/elt-patches-20170422 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.16 >=sys-devel/automake-1.15.1 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=GNU GRUB Legacy boot loader
 EAPI=0
