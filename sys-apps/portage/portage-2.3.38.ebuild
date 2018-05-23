@@ -14,12 +14,12 @@ inherit distutils-r1 git-2 multilib systemd
 
 EGIT_REPO_URI="git://anongit.gentoo.org/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="3228956aed7ba7caaaad7a07e48ed6013f73e523"
+EGIT_COMMIT="370a5832a66713a17ff010f137fda7cfc7a26fe3"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
 LICENSE="GPL-2"
-KEYWORDS="~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 IUSE="build doc epydoc gentoo-dev +ipc +native-extensions +rsync-verify selinux xattr"
 
@@ -49,9 +49,9 @@ RDEPEND="
 		$(python_gen_cond_dep 'dev-python/pyblake2[${PYTHON_USEDEP}]' \
 			python{2_7,3_4,3_5} pypy)
 		rsync-verify? (
-			>=app-portage/gemato-10
-			app-crypt/gentoo-keys
-			app-crypt/gnupg[ssl(-)]
+			>=app-portage/gemato-12.1
+			app-crypt/openpgp-keys-gentoo-release
+			>=app-crypt/gnupg-2.2.4-r2[ssl(-)]
 		)
 	)
 	elibc_FreeBSD? ( sys-freebsd/freebsd-bin )
