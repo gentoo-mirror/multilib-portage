@@ -4,4 +4,4 @@ media-sound/jack-audio-connection-kit 0.121.3: A low-latency audio server
 perl-core/Digest-SHA 5.820.0: Perl extension for SHA-1/224/256/384/512
 sci-geosciences/googleearth 5.1.3535.3218-r1: A 3D interface to the planet
 sys-boot/grub 0.97-r10 0.97-r14: GNU GRUB Legacy boot loader
-x11-drivers/nvidia-drivers 96.43.23 173.14.39 331.113 340.76 343.36 346.72 349.16: NVIDIA Accelerated Graphics Driver
+x11-drivers/nvidia-drivers 96.43.23 173.14.39 304.125 331.113 340.76 343.36 346.72 349.16: NVIDIA Accelerated Graphics Driver
