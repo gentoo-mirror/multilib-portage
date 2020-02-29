@@ -11,9 +11,9 @@ PYTHON_COMPAT=(
 )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 
-inherit distutils-r1 git-2 linux-info multilib systemd prefix
+inherit distutils-r1 git-r3 linux-info multilib systemd prefix
 
-EGIT_REPO_URI="git://anongit.gentoo.org/proj/portage.git"
+EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/portage.git"
 EGIT_BRANCH="multilib"
 EGIT_COMMIT="d0102f790d48ba22877d8ca0d0c0698e54154efb"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
