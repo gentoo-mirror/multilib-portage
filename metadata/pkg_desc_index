@@ -13,4 +13,4 @@ media-plugins/live 2009.06.02 2011.06.16 2011.12.20 2011.12.23 2012.01.07: Sourc
 media-sound/jack-audio-connection-kit 0.121.3: A low-latency audio server
 perl-core/Digest-SHA 5.820.0: Perl extension for SHA-1/224/256/384/512
 sys-apps/abi-wrapper 1.0-r6 2.0_pre20120702: Wraps binaries which have implementations for different ABIs
-sys-apps/portage 2.3.103-r1 3.0.4 3.0.8: Portage is the package management and distribution system for Gentoo
+sys-apps/portage 3.0.4 3.0.8 3.0.13: Portage is the package management and distribution system for Gentoo
