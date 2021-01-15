@@ -11,7 +11,7 @@ inherit distutils-r1 git-r3 linux-info multilib tmpfiles prefix
 
 EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="688a2012b8e4d5d66406e7d3ee2eb140569a4b20"
+EGIT_COMMIT="2cf0e1224b7d8f4016dda0c197539c85d86ec65c"
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
