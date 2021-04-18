@@ -6,9 +6,6 @@ app-emulation/emul-linux-x86-db:nodep - Disable the implicit dependency on app-e
 app-emulation/emul-linux-x86-gstplugins:development - Install pkg-config files (a no-op for multilib-portage-provided app-emulation packages which unconditionally install development files).
 app-emulation/emul-linux-x86-gstplugins:nodep - Disable all dependencies this package has on other packages as a quick kludge for when the 32-bit app doesn’t actually need every single gstplugin installed.
 app-emulation/emul-linux-x86-soundlibs:nodep - Disable the implicit dependency on app-emulation/emul-linux-x86-baselibs found in the gentoo-x86 version of this emul package.
-media-sound/jack-audio-connection-kit:coreaudio - Build the CoreAudio driver on Mac OS X systems
-media-sound/jack-audio-connection-kit:cpudetection - Enables runtime cpudetection
-media-sound/jack-audio-connection-kit:pam - Add basic realime configuration via sys-auth/realtime-base
 sys-apps/portage:apidoc - Build html API documentation with sphinx-apidoc.
 sys-apps/portage:gentoo-dev - Enable features required for Gentoo ebuild development.
 sys-apps/portage:ipc - Use inter-process communication between portage and running ebuilds.
