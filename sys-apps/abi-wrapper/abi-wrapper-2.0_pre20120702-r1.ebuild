@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=4
+EAPI=7
 
-inherit autotools-utils multilib
+inherit multilib
 
 DESCRIPTION="Wraps binaries which have implementations for different ABIs"
 HOMEPAGE="https://dev.gentoo.org/~binki/abi-wrapper.xhtml https://bitbucket.org/gentoo/abi-wrapper"
@@ -11,7 +11,7 @@ SRC_URI="ftp://mirror.ohnopub.net/mirror/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
 IUSE="doc"
 
 DEPEND="doc? ( app-text/txt2man )"
@@ -38,11 +38,11 @@ src_configure() {
 	)
 	use doc || myeconfargs+=(TXT2MAN=false)
 
-	autotools-utils_src_configure
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
-	autotools-utils_src_install
+	default
 
 	dosym ../../bin/abi-wrapper /usr/bin/abi-wrapper
 }
