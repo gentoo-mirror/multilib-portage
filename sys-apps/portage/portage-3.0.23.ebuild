@@ -3,17 +3,17 @@
 
 EAPI=7
 
-DISTUTILS_USE_SETUPTOOLS=no
-PYTHON_COMPAT=( pypy3 python3_{7..9} )
+DISTUTILS_USE_SETUPTOOLS=bdepend
+PYTHON_COMPAT=( pypy3 python3_{7..10} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 TMPFILES_OPTIONAL=1
 
 inherit distutils-r1 git-r3 linux-info multilib tmpfiles prefix
 
+DESCRIPTION="The package management and distribution system for Gentoo"
 EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="639064263dbd0d1a0753d8e754c53ac0ff10768b"
-DESCRIPTION="Portage is the package management and distribution system for Gentoo"
+EGIT_COMMIT="a7727547b795a3399883a2b7547657d43978d783"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
 LICENSE="GPL-2"
@@ -67,7 +67,8 @@ RDEPEND="
 	!<app-admin/logrotate-3.8.0
 	>=sys-apps/abi-wrapper-1.0-r6
 	!<app-portage/gentoolkit-0.4.6
-	!<app-portage/repoman-2.3.10"
+	!<app-portage/repoman-2.3.10
+	!~app-portage/repoman-3.0.0"
 PDEPEND="
 	!build? (
 		>=net-misc/rsync-2.6.4
@@ -99,7 +100,7 @@ python_prepare_all() {
 	fi
 
 	if use native-extensions; then
-		printf "[build_ext]\nportage-ext-modules=true\n" >> \
+		printf "[build_ext]\nportage_ext_modules=true\n" >> \
 			setup.cfg || die
 	fi
 
