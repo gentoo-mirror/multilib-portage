@@ -12,7 +12,7 @@ inherit distutils-r1 git-r3 linux-info multilib tmpfiles prefix
 DESCRIPTION="The package management and distribution system for Gentoo"
 EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="ce24ddf9e0a9ba9e86f9ccf38004559c6367d756"
+EGIT_COMMIT="a5893dcca4aae2fdcccbcb6578bf48c203f5e1d9"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
 LICENSE="GPL-2"
@@ -31,8 +31,8 @@ DEPEND="!build? ( $(python_gen_impl_dep 'ssl(+)') )
 	doc? ( app-text/xmlto ~app-text/docbook-xml-dtd-4.4 )
 	>=sys-apps/abi-wrapper-1.0-r6
 	apidoc? (
-		dev-python/sphinx
-		dev-python/sphinx-epytext
+		dev-python/sphinx[${PYTHON_USEDEP}]
+		dev-python/sphinx-epytext[${PYTHON_USEDEP}]
 	)"
 # Require sandbox-2.2 for bug #288863.
 # For whirlpool hash, require python[ssl] (bug #425046).
@@ -71,7 +71,8 @@ RDEPEND="
 PDEPEND="
 	!build? (
 		>=net-misc/rsync-2.6.4
-		userland_GNU? ( >=sys-apps/coreutils-6.4 )
+		>=sys-apps/file-5.41
+		>=sys-apps/coreutils-6.4
 	)"
 # coreutils-6.4 rdep is for date format in emerge-webrsync #164532
 # NOTE: FEATURES=installsources requires debugedit and rsync
@@ -83,6 +84,10 @@ pkg_pretend() {
 }
 
 python_prepare_all() {
+	local PATCHES=(
+		"${FILESDIR}/3.0.30-revert-default-enable-soname-dependencies.patch"
+	)
+
 	distutils-r1_python_prepare_all
 
 	sed -e "s:^VERSION = \"HEAD\"$:VERSION = \"${PV}\":" -i lib/portage/__init__.py || die
@@ -227,24 +232,26 @@ python_install_all() {
 }
 
 pkg_preinst() {
-	python_setup
-	local sitedir=$(python_get_sitedir)
-	[[ -d ${D}${sitedir} ]] || die "${D}${sitedir}: No such directory"
-	env -u DISTDIR \
-		-u PORTAGE_OVERRIDE_EPREFIX \
-		-u PORTAGE_REPOSITORIES \
-		-u PORTDIR \
-		-u PORTDIR_OVERLAY \
-		PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
-		"${PYTHON}" -m portage._compat_upgrade.default_locations || die
+	if ! use build; then
+		python_setup
+		local sitedir=$(python_get_sitedir)
+		[[ -d ${D}${sitedir} ]] || die "${D}${sitedir}: No such directory"
+		env -u DISTDIR \
+			-u PORTAGE_OVERRIDE_EPREFIX \
+			-u PORTAGE_REPOSITORIES \
+			-u PORTDIR \
+			-u PORTDIR_OVERLAY \
+			PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
+			"${PYTHON}" -m portage._compat_upgrade.default_locations || die
 
-	env -u BINPKG_COMPRESS -u PORTAGE_REPOSITORIES \
-		PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
-		"${PYTHON}" -m portage._compat_upgrade.binpkg_compression || die
+		env -u BINPKG_COMPRESS -u PORTAGE_REPOSITORIES \
+			PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
+			"${PYTHON}" -m portage._compat_upgrade.binpkg_compression || die
 
-	env -u FEATURES -u PORTAGE_REPOSITORIES \
-		PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
-		"${PYTHON}" -m portage._compat_upgrade.binpkg_multi_instance || die
+		env -u FEATURES -u PORTAGE_REPOSITORIES \
+			PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
+			"${PYTHON}" -m portage._compat_upgrade.binpkg_multi_instance || die
+	fi
 
 	# elog dir must exist to avoid logrotate error for bug #415911.
 	# This code runs in preinst in order to bypass the mapping of
