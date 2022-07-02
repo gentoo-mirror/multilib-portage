@@ -8,6 +8,5 @@ app-emulation/emul-linux-x86-qtlibs 99999999: Metapackage to provide 32bit libra
 app-emulation/emul-linux-x86-sdl 99999999: Metapackage to provide 32bit libraries via multilib
 app-emulation/emul-linux-x86-soundlibs 99999999: Metapackage to provide 32bit libraries via multilib
 app-emulation/emul-linux-x86-xlibs 99999999: Metapackage to provide 32bit libraries via multilib
-perl-core/Digest-SHA 5.820.0: Perl extension for SHA-1/224/256/384/512
 sys-apps/abi-wrapper 1.0-r6 2.0_pre20120702-r1: Wraps binaries which have implementations for different ABIs
 sys-apps/portage 3.0.20 3.0.23 3.0.28 3.0.30: The package management and distribution system for Gentoo
