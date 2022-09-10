@@ -10,7 +10,7 @@ TMPFILES_OPTIONAL=1
 inherit distutils-r1 git-r3 linux-info multilib tmpfiles prefix
 
 DESCRIPTION="The package management and distribution system for Gentoo"
-EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/portage.git"
+EGIT_REPO_URI="https://github.com/TommyD/portage.git"
 EGIT_BRANCH="multilib"
 EGIT_COMMIT="a5893dcca4aae2fdcccbcb6578bf48c203f5e1d9"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
