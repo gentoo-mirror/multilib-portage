@@ -1,9 +1,10 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( pypy3 python3_{8..11} )
+DISTUTILS_EXT=1
+PYTHON_COMPAT=( pypy3 python3_{9..11} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 TMPFILES_OPTIONAL=1
 
@@ -12,7 +13,7 @@ inherit distutils-r1 git-r3 linux-info toolchain-funcs multilib tmpfiles prefix
 DESCRIPTION="The package management and distribution system for Gentoo"
 EGIT_REPO_URI="https://github.com/TommyD/portage.git"
 EGIT_BRANCH="multilib"
-EGIT_COMMIT="64a71265f05e8bd6683c32babadb5d1516f9aaa2"
+EGIT_COMMIT="05ae40a197a95bf4d521a58403e204d48d7d796a"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
 LICENSE="GPL-2"
@@ -23,8 +24,10 @@ RESTRICT="!test? ( test )"
 
 BDEPEND="
 	app-arch/xz-utils
-	test? ( dev-vcs/git )"
-DEPEND="!build? ( $(python_gen_impl_dep 'ssl(+)') )
+	test? ( dev-vcs/git )
+"
+DEPEND="
+	!build? ( $(python_gen_impl_dep 'ssl(+)') )
 	>=app-arch/tar-1.27
 	dev-lang/python-exec:2
 	>=sys-apps/sed-4.0.5 sys-devel/patch
@@ -33,7 +36,8 @@ DEPEND="!build? ( $(python_gen_impl_dep 'ssl(+)') )
 	apidoc? (
 		dev-python/sphinx[${PYTHON_USEDEP}]
 		dev-python/sphinx-epytext[${PYTHON_USEDEP}]
-	)"
+	)
+"
 # Require sandbox-2.2 for bug #288863.
 # For whirlpool hash, require python[ssl] (bug #425046).
 # For compgen, require bash[readline] (bug #445576).
@@ -44,6 +48,7 @@ RDEPEND="
 	app-arch/zstd
 	>=app-arch/tar-1.27
 	dev-lang/python-exec:2
+	>=sys-apps/baselayout-2.9
 	>=sys-apps/findutils-4.4
 	!build? (
 		>=sys-apps/sed-4.0.5
@@ -67,13 +72,15 @@ RDEPEND="
 	>=sys-apps/abi-wrapper-1.0-r6
 	!<app-portage/gentoolkit-0.4.6
 	!<app-portage/repoman-2.3.10
-	!~app-portage/repoman-3.0.0"
+	!~app-portage/repoman-3.0.0
+"
 PDEPEND="
 	!build? (
 		>=net-misc/rsync-2.6.4
-		>=sys-apps/file-5.41
 		>=sys-apps/coreutils-6.4
-	)"
+		>=sys-apps/file-5.44-r3
+	)
+"
 # coreutils-6.4 rdep is for date format in emerge-webrsync #164532
 # NOTE: FEATURES=installsources requires debugedit and rsync
 
@@ -102,7 +109,7 @@ python_prepare_all() {
 			die "failed to patch create_depgraph_params.py"
 
 		einfo "Enabling additional FEATURES for gentoo-dev..."
-		echo 'FEATURES="${FEATURES} ipc-sandbox network-sandbox strict-keepdir"' \
+		echo 'FEATURES="${FEATURES} ipc-sandbox network-sandbox strict-keepdir warn-on-large-env"' \
 			>> cnf/make.globals || die
 	fi
 
@@ -157,10 +164,6 @@ python_prepare_all() {
 				-e "s|^\(sync-uri = \).*|\\1rsync://rsync.prefix.bitzolder.nl/gentoo-portage-prefix|" \
 				-i cnf/repos.conf || die "sed failed"
 		fi
-
-		einfo "Adding FEATURES=force-prefix to make.globals ..."
-		echo -e '\nFEATURES="${FEATURES} force-prefix"' >> cnf/make.globals \
-			|| die "failed to append to make.globals"
 	fi
 
 	cd "${S}/cnf" || die
@@ -290,11 +293,4 @@ pkg_postinst() {
 	einfo
 	elog "The bin/ dir of the overlay has some scripts to switch from lib32"
 	elog "to MULTILIB_ABI or to add the default MULTILIB_ABI flags"
-
-	einfo ""
-	einfo "This release of portage NO LONGER contains the repoman code base."
-	einfo "Repoman has its own ebuild and release package."
-	einfo "For repoman functionality please emerge app-portage/repoman"
-	einfo "Please report any bugs you may encounter."
-	einfo ""
 }
