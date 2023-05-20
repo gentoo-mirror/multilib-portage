@@ -9,4 +9,4 @@ app-emulation/emul-linux-x86-sdl 99999999: Metapackage to provide 32bit librarie
 app-emulation/emul-linux-x86-soundlibs 99999999: Metapackage to provide 32bit libraries via multilib
 app-emulation/emul-linux-x86-xlibs 99999999: Metapackage to provide 32bit libraries via multilib
 sys-apps/abi-wrapper 1.0-r6 2.0_pre20120702-r1: Wraps binaries which have implementations for different ABIs
-sys-apps/portage 3.0.30 3.0.34: The package management and distribution system for Gentoo
+sys-apps/portage 3.0.30 3.0.34 3.0.36: The package management and distribution system for Gentoo
